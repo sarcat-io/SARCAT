@@ -1,0 +1,144 @@
+[
+  {
+    "label": "oscalDirectory",
+    "name": "oscal",
+    "dir": "/",
+    "type": 2,
+    "template": ""
+  },
+  {
+    "label": "bundleDirectory",
+    "name": "bundles",
+    "dir": "/",
+    "type": 2,
+    "template": ""
+  },
+  {
+    "label": "sarcatDirectory",
+    "name": ".sarcat",
+    "dir": "/",
+    "type": 2,
+    "template": ""
+  },
+  {
+    "label": "runLogDirectory",
+    "name": "runLogs",
+    "dir": "/.sarcat/",
+    "type": 2,
+    "template": ""
+  },
+  {
+    "label": "processLogDirectory",
+    "name": "processLogs",
+    "dir": "/.sarcat/",
+    "type": 2,
+    "template": ""
+  },
+  {
+    "label": "configurationDirectory",
+    "name": "configurations",
+    "dir": "/.sarcat/",
+    "type": 2,
+    "template": ""
+  },
+  {
+    "label": "keyPairDirectory",
+    "name": "keyPairs",
+    "dir": "/.sarcat/",
+    "type": 2,
+    "template": ""
+  },
+  {
+    "label": "rawScanFileDirectory",
+    "name": "rawScanFiles",
+    "dir": "/",
+    "type": 2,
+    "template": ""
+  },
+  {
+    "label": "assessmentDataDirectory",
+    "name": "assessmentData",
+    "dir": "/",
+    "type": 2,
+    "template": ""
+  },
+  {
+    "label": "parsedDataDirectory",
+    "name": "parsedData",
+    "dir": "/assessmentData/",
+    "type": 2,
+    "template": ""
+  },
+  {
+    "label": "evidenceFileDirectory",
+    "name": "evidenceFiles",
+    "dir": "/assessmentData/",
+    "type": 2,
+    "template": ""
+  },
+  {
+    "label": "normalizedDataDirectory",
+    "name": "normalizedData",
+    "dir": "/assessmentData/",
+    "type": 2,
+    "template": ""
+  },
+  {
+    "label": "authorizationRuleRegistry",
+    "easy": "authorizationRuleRegistry.sarcat",
+    "name": "authorizationRuleRegistry.sarcat.json",
+    "dir": "/.sarcat/configurations/",
+    "type": 1,
+    "template": "templates/archive/authorizationRuleRegistry.sarcat.json",
+    "data": {"rules":{}}
+  },
+  {
+    "label": "bundleRegistry",
+    "easy": "bundleRegistry.sarcat",
+    "name": "bundleRegistry.sarcat.json",
+    "dir": "/.sarcat/configurations/",
+    "type": 1,
+    "data": {"bundles":[]}
+  },
+  {
+    "label": "sarcatConfig",
+    "easy": "config.sarcat",
+    "name": "config.sarcat.json",
+    "dir": "/.sarcat/configurations/",
+    "type": 1,
+    "template": "",
+    "data": {"config":{},"systemIdentification":{}}
+  },
+  {
+    "label": "rawScanFileRegistry",
+    "easy":"rawScanFileRegistry.sarcat",
+    "name": "rawScanFileRegistry.sarcat.json",
+    "dir": "/.sarcat/configurations/",
+    "type": 1,
+    "data": {"files":[]}
+  },
+  {
+    "label": "archiveJournal",
+    "easy": "archiveJournal.sarcat",
+    "name": "archiveJournal.sarcat.json",
+    "dir": "/.sarcat/",
+    "type": 1,
+    "template": "",
+    "data":{"archive":{}}
+  },
+  {
+    "label": "keyManagement",
+    "easy": "keyManagement.sarcat",
+    "name": "keyManagement.sarcat.json",
+    "dir": "/.sarcat/configurations/",
+    "type": 1,
+    "template": "",
+    "data":{"keyPairs":[]}
+  },
+  {
+    "label": "deliverableDirectory",
+    "name": "_deliverables",
+    "dir": "/",
+    "type": 2
+  }
+]

@@ -1,0 +1,87 @@
+[
+    {"name": "00_historical-manifest.json", "dir":"/", "type": 1},
+    {"name": "00_bundle-manifest.json", "dir":"/", "type": 1},
+
+    {"name": "00_sarcat", "dir":"/", "type": 2},
+    {"name": "config-manifest.json", "dir": "/00_sarcat/", "type":1},
+    {"name": "activity-log.json", "dir": "/00_sarcat/", "type":1},
+    
+    {"name": "00-01_current", "dir":"/00_sarcat/", "type": 2},
+    {"name": "current-manifest.json", "dir": "/00_sarcat/00-01_current/", "type":1},
+    {"name": "sarcat-config.json", "dir": "/00_sarcat/00-01_current/", "type":1},
+    {"name": "oscal-config.json", "dir": "/00_sarcat/00-01_current/", "type":1},
+    {"name": "system-identification.json", "dir":"/00_sarcat/00-01_current/", "type": 1}, 
+    {"name": "assessment-tool-details.json", "dir":"/00_sarcat/00-01_current/", "type": 1},
+
+    {"name": "00-02_historical", "dir":"/00_sarcat/", "type": 2},
+    {"name": "historical-manifest.json", "dir": "/00_sarcat/00-02_historical/", "type":1},
+    {"name": "sarcat-config.json", "dir": "/00_sarcat/00-02_historical/", "type":1},
+    {"name": "oscal-config.json", "dir": "/00_sarcat/00-02_historical/", "type":1},
+    {"name": "system-identification.json", "dir":"/00_sarcat/00-02_historical/", "type": 1},
+    {"name": "assessment-tool-details.json", "dir":"/00_sarcat/00-02_historical/", "type": 1},
+
+    {"name": "01_oscal-data", "dir":"/", "type": 2},
+
+    {"name": "oscal-manifest.json", "dir": "/01_oscal-data/", "type":1},
+
+    {"name": "01-01_current", "dir":"/01_oscal-data/", "type": 2},
+    {"name": "current-manifest.json", "dir": "/01_oscal-data/01-01_current/", "type":1},
+
+    {"name": "01-02_historical", "dir":"/01_oscal-data/", "type": 2},
+    {"name": "historical-manifest.json", "dir": "/01_oscal-data/01-02_historical/", "type":1},
+
+    {"name": "02_assessment-data", "dir": "/", "type": 2},
+    {"name": "assessment-data-manifest.json", "dir": "/02_assessment-data/", "type":1},
+
+    {"name": "02-01_raw-scan-data", "dir": "/02_assessment-data/", "type":2},
+    {"name": "raw-manifest.json", "dir": "/02_assessment-data/02-01_raw-scan-data/", "type":1},
+
+    {"name": "02-02_intermediate-objects", "dir": "/02_assessment-data/", "type":2},
+    {"name": "intermediate-manifest.json", "dir": "/02_assessment-data/02-02_intermediate-objects/", "type":1},
+
+    {"name": "02-03_sarcat-objects", "dir": "/02_assessment-data/", "type":2},
+    {"name": "sarcat-manifest.json", "dir": "/02_assessment-data/02-03_sarcat-objects/", "type":1},
+
+    {"name": "03_code", "dir": "/", "type": 2},
+
+    {"name": "code-manifest.json", "dir": "/03_code/","type":1},
+    {"name": "container-image", "dir": "/03_code/", "type":1},
+    {"name": "Dockerfile", "dir": "/03_code/", "type":1},
+
+    {"name": "03-01_oscal-parsers", "dir": "/03_code/", "type":2},
+    {"name": "oscal-parsers-manifest.json", "dir": "/03_code/03-01_oscal-parsers/", "type":1},
+
+    {"name": "03-02_raw-parsers", "dir": "/03_code/", "type":2},
+    {"name": "raw-parsers-manifest.json", "dir": "/03_code/03-02_raw-parsers/", "type":1},
+
+    {"name": "03-03_sarcat-scripts", "dir": "/03_code/", "type":2},
+    {"name": "sarcat-scripts-manifest.json", "dir": "/03_code/03-03_sarcat-scripts/", "type":1},
+
+    {"name": "04_deliverables", "dir": "/", "type":2},
+
+    {"name": "deliverables-manifest.json", "dir": "/04_deliverables/", "type": 1},
+
+    {"name": "04-01_current", "dir": "/04_deliverables/", "type":2},
+    {"name": "current-manifest.json", "dir": "/04_deliverables/04-01_current/", "type":1},
+    {"name": "summary.csv", "dir": "/04_deliverables/04-01_current/", "type":1},
+    {"name": "config-inventory.csv", "dir":"/04_deliverables/04-01_current/", "type":1},
+    {"name": "hardware-inventory.csv", "dir":"/04_deliverables/04-01_current/", "type":1},
+    {"name": "software-inventory.csv", "dir":"/04_deliverables/04-01_current/", "type":1},
+    {"name": "container-inventory.csv", "dir":"/04_deliverables/04-01_current/", "type":1},
+    {"name": "network-inventory.csv", "dir":"/04_deliverables/04-01_current/", "type":1},
+    {"name": "vulnerability-inventory.csv", "dir":"/04_deliverables/04-01_current/", "type":1},
+    {"name": "action-items.csv", "dir":"/04_deliverables/04-01_current/", "type":1},
+    {"name": "poam.csv", "dir": "/04_deliverables/04-01_current/", "type":1},
+
+    {"name": "04-02_historical", "dir": "/04_deliverables/", "type":2},
+    {"name": "historical-manifest.json", "dir": "/04_deliverables/04-02_historical/", "type":1},
+    {"name": "summary.csv", "dir": "/04_deliverables/04-02_historical/", "type":1},
+    {"name": "hardware-inventory.csv", "dir":"/04_deliverables/04-02_historical/", "type":1},
+    {"name": "software-inventory.csv", "dir":"/04_deliverables/04-02_historical/", "type":1},
+    {"name": "container-inventory.csv", "dir":"/04_deliverables/04-02_historical/", "type":1},
+    {"name": "network-inventory.csv", "dir":"/04_deliverables/04-02_historical/", "type":1},
+    {"name": "vulnerability-inventory.csv", "dir":"/04_deliverables/04-02_historical/", "type":1},
+    {"name": "config-inventory.csv", "dir":"/04_deliverables/04-02_historical/", "type":1},
+    {"name": "action-items.csv", "dir":"/04_deliverables/04-02_historical/", "type":1},
+    {"name": "poam.csv", "dir": "/04_deliverables/04-02_historical/", "type":1}
+]

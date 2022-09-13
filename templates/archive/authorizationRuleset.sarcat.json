@@ -1,0 +1,39 @@
+{
+    "vulnerability_totals": {
+        "total_unique": {
+            "max": 100,
+            "max_overdue": 100,
+            "max_ovedue_hasExploit": 100
+        },
+        "high_unique":{
+            "max":100,
+            "max_overdue": 100,
+            "max_ovedue_hasExploit": 100
+        },
+        "medium_unique": {
+            "max": 100,
+            "max_overdue": 100,
+            "max_ovedue_hasExploit": 100
+        },
+        "low_unique": {
+            "max": 100,
+            "max_overdue": 100,
+            "max_ovedue_hasExploit": 100
+        }
+    },
+    "vulnerableAssets": {
+        "total_max_pecentage":50,
+        "high_max_pecentage":30,
+        "moderate_max_pecentage":50,
+        "low_max_pecentage":90,
+        "total_overdue_max_pecentage":30,
+        "high_overdue_max_pecentage":10,
+        "moderate_overdue_max_pecentage":30,
+        "low_overdue_max_pecentage":60
+    },
+    "remediation_deadlines":{
+        "high": 30,
+        "moderate":60,
+        "low": 120
+    }
+}

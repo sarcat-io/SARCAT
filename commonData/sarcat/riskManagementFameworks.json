@@ -1,0 +1,7 @@
+{
+    "rmf":[
+        {"rmf_name": "fedramp","country":"usa","sector":"public","assurance":[
+            {"assurance": "high", "controls":[]}
+        ]}
+    ]
+}

@@ -1,0 +1,13 @@
+"`rmf name
+country
+sector
+governance_hierarchy: OMB A-130 -> NIST sp800-37 -> FIPS-199 SP800-53 etc..
+nist_based: true
+modified_control_verbiage: true
+modified_control_selection: true
+inheritance: true
+inheritance_type: referential
+assurance_standard: "FIPS-199"
+assurance_levels: high, moderate, modified_others
+controls: all controls -> AC-4: {"assurance_level":["high","moderate"],"family":"access_control","identifier":"ac-4","verbiage":"ipsum","parent_controls": [{"identifier":"","uuid":""}], "child_controls":[], "lifecycle":{"draft_date":"","active_date":"","eol_date":"","status":"active/deprecated,sunset/superseded", "supersededBy":""}}
+ccf_identifier`"
