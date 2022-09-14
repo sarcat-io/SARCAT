@@ -4,19 +4,17 @@ import figlet from 'figlet' //////////3rd Party Library for diplaying ASCII base
 import chalk from 'chalk' //////////3rd Party Library for command line fonts and colors
 import path from 'node:path'
 inquirer.registerPrompt('search-list', await import('inquirer-search-list'));
-inquirer.registerPrompt('datetime', await import('inquirer-datepicker-prompt'));
 import inquirerFileTreeSelection from 'inquirer-file-tree-selection-prompt' //////////3rd Party Library for user input of local files and folders
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export default class {
     constructor(questionObject){
+        var goodTypes = ["input", "password", "confirm"]
+        var midTypes = ["datetime"]
         if(questionObject.length >= 1){
             var hold = []
             for(var q of questionObject){
-                q.transformer = (input) => {
-                    const name = input.split(path.sep).pop();
-                    return name
-                }
-                if (q.type == 'input' || q.type == 'password'){
+
+                if (goodTypes.includes(q.type)){
                     q.validate = (input)=>{
                         if(input.length > 0){
                             return true
@@ -24,8 +22,19 @@ export default class {
                             return false
                         }
                     }
-                } else if(q.type == false) {
-
+                    q.transformer = (input) => {
+                        const name = input.split(path.sep).pop();
+                        return name
+                    }
+                } else if(midTypes.includes(q.type)) {
+                    console.log(q)
+                    q.validate = (input)=>{
+                        if(input.length > 0){
+                            return true
+                        } else {
+                            return false
+                        }
+                    }
                 } else{
                     q.validate = (input)=>{
                         if(input.indexOf(path.sep) > -1){

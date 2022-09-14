@@ -3,7 +3,7 @@ import {readdirSync, readFileSync, existsSync, mkdirSync, writeFileSync, readdir
 import {execSync} from 'node:child_process' //////////Native NodeJS Command Line Process
 import { fileURLToPath } from 'url' //////////Native NodeJS fileUrl <> Path function
 import { dirname, normalize } from 'path' //////////Native NodeJS local file path functions
-const archiveDirectory = normalize(`${process.cwd()}/../!SARCAT_ARCHIVE!`)
+const archiveDirectory = normalize(`${process.cwd()}/../__SARCAT_ARCHIVE`)
 import { Easy } from 'easy-lowdb'
 import prompt from './utilities/promptUser.mjs'
 const __filename = fileURLToPath(import.meta.url)

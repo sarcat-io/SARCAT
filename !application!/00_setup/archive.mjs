@@ -22,7 +22,7 @@ export async function setupArchive(archiveDirectory){
             console.log(`Creating SARCAT Archive Directory at ${archiveDirectory}`)
             mkdirSync(archiveDirectory)
         }
-        console.log(`\nSARCAT Archive Paths:\n    -| Container Volume: ${chalk.yellowBright(archiveDirectory)} \n    -| Host/Local Drive: ${chalk.yellow(`${process.argv[2]}/!SARCAT_ARCHIVE!`)}`)
+        console.log(`\nSARCAT Archive Paths:\n    -| Container Volume: ${chalk.yellowBright(archiveDirectory)} \n    -| Host/Local Drive: ${chalk.yellow(`${process.argv[2]}/__SARCAT_ARCHIVE`)}`)
         var archiveDirectoryContents = await iterateDirectory(archiveDirectory, true) //readdirSync(archiveDirectory, {withFileTypes:true})
         var archiveDirectoryContentNames = archiveDirectoryContents.map(x=>x.name)
         console.log(`${chalk.gray(`-----------------`)}\nChecking SARCAT Archive Directory Structure\n${chalk.gray(`-----------------`)}`)

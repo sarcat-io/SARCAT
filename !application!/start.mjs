@@ -4,7 +4,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 const moduleRelPath = `.${__filename.split(process.cwd()).at(-1)}`
 import { _SC } from './sarcat_class.mjs'
-const archiveDirectory = normalize(`${__dirname}/../!SARCAT_ARCHIVE!`)
+const archiveDirectory = normalize(`${__dirname}/../__SARCAT_ARCHIVE`)
 import { _SC_utilities } from './utilities/index_utilities.mjs'
 const _util = new _SC_utilities()
 import {_SC_commonData} from '../commonData/index_commonData.mjs'

@@ -92,7 +92,7 @@ dist
 **RawScanReports**
 **-workspace**
 **to_do**
-**/!SARCAT_ARCHIVE!/
+**/__SARCAT_ARCHIVE/
 **/oscal-content/
 **/portal_audits/
 **/assessmentTools/

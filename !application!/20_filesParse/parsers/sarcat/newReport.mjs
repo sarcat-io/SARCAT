@@ -1,8 +1,8 @@
 import { Easy } from "easy-lowdb";
 import {normalize} from 'path'
 import { pid } from "process";
-// SARCAT/!SARCAT_ARCHIVE!/bundles/SARCAT_bundle_0001/02_assessment-data/02-01_raw-scan-data/2022MAR_conMon_parsed.json
-const archiveDirectory = normalize(`${process.cwd()}/../../../../!SARCAT_ARCHIVE!/bundles/SARCAT_bundle_0001/02_assessment-data/02-01_raw-scan-data`)
+// SARCAT/__SARCAT_ARCHIVE/bundles/SARCAT_bundle_0001/02_assessment-data/02-01_raw-scan-data/2022MAR_conMon_parsed.json
+const archiveDirectory = normalize(`${process.cwd()}/../../../../__SARCAT_ARCHIVE/bundles/SARCAT_bundle_0001/02_assessment-data/02-01_raw-scan-data`)
 var vuln = new Easy('2022MAR_conMon_parsed', archiveDirectory)
 var nessus = new Easy('nessus', archiveDirectory)
 await vuln.read()

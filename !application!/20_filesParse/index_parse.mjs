@@ -5,7 +5,7 @@ import {readdirSync, readFileSync} from 'node:fs' //////////Native NodeJS File M
 import {execSync} from 'node:child_process' //////////Native NodeJS Command Line Process
 import { fileURLToPath } from 'url' //////////Native NodeJS fileUrl <> Path function
 import { dirname, normalize } from 'path' //////////Native NodeJS local file path functions
-import makeHash from '../utilities/newHash.mjs'
+import {_SC_crypto} from '../utilities/crypto_class.mjs'
 // import { LogControl } from "./log_management.mjs" //////////Log Management Class written by SARCAT using only Native Nodejs
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -19,15 +19,7 @@ import chalk from 'chalk'
 import isDocker from 'is-docker'; //////////Checks if this module is running in a container
 import semver from 'semver' //////////Tool for parsing and comparing parser dependency versions
 import promptUser from '../utilities/promptUser.mjs'
-import {updateRegistryEntry} from '../utilities/updateSingleEntryRegistry.mjs'
-import prompt from 'inquirer/lib/ui/prompt.js'
-///update to classes
-const archiveDirectory = normalize(`${process.cwd()}/../!SARCAT_ARCHIVE!`)
-const templateDirectory = normalize(`${process.cwd()}/../templates`)
-const registryDirectoy = normalize(`${process.cwd()}/../registry`)
-const rawFileDirectory = `${archiveDirectory}/rawScanFiles`
-const rawScanFileRegistry = new Easy('rawScanFileRegistry.sarcat',`${archiveDirectory}`)
-await rawScanFileRegistry.read()
+const makeHash = new _SC_crypto().makeHash
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //////////Parser Dependency Check
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -103,23 +95,23 @@ async function getParsers(rawScanFiles, bundleFileHashes){
         await bundleFiles.filter(x=>x.extension == ext).forEach(y=>{options.push({name:`./${y.path.split('!SARCHAT_ARCHIVE!')[1]}/${y.name}`,value:y.data.fileHash})})
         return {
             type: "checkbox",
-            message: `${ext}`,
-            default: options[0],
+            name: "addFiles",
+            message: `Select which of these ${chalk.redBright.bold(ext)} files to add to the bundle as evidence?`,
             choices: options
         }
     }
-    var addAsEvidence = new prompt() // 
+    var addEvidenceFiles2Bundle = []
     for(var ext of missingExtensions){
         console.log(`No parsers found for file extension: ${ext}`)
-        var noParserPrompt = new prompt()
-        var res = await noParserPrompt.ask(await question(ext))
-        //create attribute of isEvidence: t/f
-        console.log('Would you like to add these files to the bundle as evidence data?[....to add as prompt later]')
+        var noParserPrompt = new promptUser(await question(ext))
+        var {addFiles} = await noParserPrompt.ask()
+        var evidenceFiles = rawScanFiles.filter(x=>addFiles.includes(x.data.fileHash))
+        addEvidenceFiles2Bundle.push(...evidenceFiles)
     }
-    return loadParsers({parsers:parsers, bundleFiles: bundleFiles, extensions: parserExtensions})
+    return loadParsers({parsers:parsers, bundleFiles: bundleFiles, extensions: parserExtensions, addEvidenceFiles2Bundle:addEvidenceFiles2Bundle})
 }
 
-async function loadParsers({parsers, bundleFiles, extensions}){
+async function loadParsers({parsers, bundleFiles, extensions, addEvidenceFiles2Bundle}){
     const pkgs = Object.keys(packageJSON.dependencies)
     const parserEngine = {}
     for(var ext of extensions){
@@ -151,18 +143,18 @@ async function loadParsers({parsers, bundleFiles, extensions}){
         }
         console.log(`Completed Installing Dependencies for .${ext} files\n`)
     }
-    return {parserEngine:parserEngine, bundleFiles:bundleFiles, extensions:extensions}
+    return {parserEngine:parserEngine, bundleFiles:bundleFiles, extensions:extensions, addEvidenceFiles2Bundle:addEvidenceFiles2Bundle}
 }
 
 //////////////////////////////////////////////////////////////////////////
 //////////Raw Scan File processing
 //////////////////////////////////////////////////////////////////////////
 
-async function parseFiles(runObj,workingBundle,rawScanFileRegistry, bundleRegistry){
+async function parseFiles(runObj,workingBundle,rawScanFileRegistry, bundleRegistry, updateEvent){
     console.log(chalk.greenBright.bold('-----------------\nBegin Parsing\n-----------------'))
     var fileCounter = 1
     var extCounter = 1
-    var {parserEngine, bundleFiles, extensions, bundleDirectory} = runObj
+    var {parserEngine, bundleFiles, extensions, bundleDirectory, addEvidenceFiles2Bundle} = runObj
     var parsedFileHashes = []
     for(var ext of extensions){
         var scanFiles = bundleFiles.filter(x=>x.extension == ext)
@@ -175,7 +167,6 @@ async function parseFiles(runObj,workingBundle,rawScanFileRegistry, bundleRegist
             res = res.split('\n')
             var lines = res.filter(x=>x.indexOf('SARCAT_OUT') == 0)
             res = res.filter(x=>x.indexOf('SARCAT_OUT') < 0).join('\n')
-            console.log(res)
             for(var l of lines){
                 l = l.split('|')
                 var mnf = new Easy(l[1],l[2])
@@ -195,27 +186,50 @@ async function parseFiles(runObj,workingBundle,rawScanFileRegistry, bundleRegist
             f.data.journal.push(status)
             f.modified_ts = ts
             f.hash = await makeHash(Buffer.from(JSON.stringify(f.data)))
-            await updateRegistryEntry(f,rawScanFileRegistry)// complete db with read write
+            updateEvent.emit('update', f, rawScanFileRegistry)
+            // await updateRegistryEntry(f,rawScanFileRegistry)// complete db with read write
         }
-        var ts = Date.now()
-        var bundleAction = {"action": "parsed files", parsedFileHashes: parsedFileHashes,"action_ts": ts}
-        workingBundle.modified_ts = ts
-        workingBundle.data.journal.push(bundleAction)
-        workingBundle.data.parsedFileHashes = parsedFileHashes
-        workingBundle.hash = await makeHash(Buffer.from(JSON.stringify(workingBundle.data)))
-        await updateRegistryEntry(workingBundle, bundleRegistry)
+        
+        // await updateRegistryEntry(workingBundle, bundleRegistry)
     }
+    var ts = Date.now()
+    if(addEvidenceFiles2Bundle.length > 0){
+        for(var f of addEvidenceFiles2Bundle){
+            var hashObj = {"name":f.name,"path":f.path,"fileHash":f.data.fileHash,"action":"added to bundle","addTime_ts": ts}
+            f.data.auditTrail||=[]
+            workingBundle.data.auditTrail||=[]
+            workingBundle.data.auditTrail.push(hashObj)
+            hashObj.bundleUUID = workingBundle.uuid
+            f.data.auditTrail.push(hashObj)
+            var fileAction = {"action": "added as evidence", "action_ts": ts}
+            var status = {"status": "in bundle", "status_ts": ts}
+            f.currentStatus = status
+            f.data.journal.push(fileAction)
+            f.data.journal.push(status)
+            f.modified_ts = ts
+            f.hash = await makeHash(Buffer.from(JSON.stringify(f.data)))
+            updateEvent.emit('update', f, rawScanFileRegistry)
+        }
+    }
+    var ts = Date.now()
+    var bundleAction = {"action": "parsed files", parsedFileHashes: parsedFileHashes, evidenceFileHashes: addEvidenceFiles2Bundle,"action_ts": ts}
+    workingBundle.modified_ts = ts
+    workingBundle.data.journal.push(bundleAction)
+    workingBundle.data.parsedFileHashes = parsedFileHashes
+    workingBundle.hash = await makeHash(Buffer.from(JSON.stringify(workingBundle.data)))
+    updateEvent.emit('update', workingBundle, bundleRegistry)
     return workingBundle
 }
 //////////////////////////////////////////////////////////////////////////
 //////////This Module Entry Point
 //////////////////////////////////////////////////////////////////////////
 
-export default async function (scDirs, workingBundle, rawScanFileRegistry, bundleRegistry){
+export default async function (workingBundle, rawScanFileRegistry, bundleRegistry, updateEvent){
+
     var parseObject = await getParsers(rawScanFileRegistry.data.files,workingBundle.data.rawFileHashes)
     parseObject.bundleDirectory = `${workingBundle.path}/${workingBundle.name}`
     // loadParsers({parsers:parsers, rawScanFiles: rawScanFiles, extensions: parserExtensions})
-    return await parseFiles(parseObject,workingBundle,rawScanFileRegistry, bundleRegistry)
+    return await parseFiles(parseObject,workingBundle,rawScanFileRegistry, bundleRegistry, updateEvent)
     
     //log activity output to activityLog
     // check that all files are parsed and update bundle status before running normalize

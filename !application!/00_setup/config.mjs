@@ -117,6 +117,12 @@ async function newConfig(sarcatConfig){
             onlyShowValid: true
         },
         {
+            type: 'input',
+            name: 'serviceID',
+            message: `If this bundle will be scoped to a specific service thats a component of the authorized system, provide the service name or other identifier`,
+            default: 'N/A'
+        },
+        {
             type: 'list',
             name: 'systemAuthorizingBody',
             default: 'FedRAMP',

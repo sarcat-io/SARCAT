@@ -18,7 +18,7 @@ const dupeCheck = new _SC_utilities().dupeCount
 const oldNew = new _SC_utilities().oldNew
 const makeHash = new _SC_crypto().makeHash
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-const archiveDirectory = normalize(`${process.cwd()}/../!SARCAT_ARCHIVE!`)
+const archiveDirectory = normalize(`${process.cwd()}/../__SARCAT_ARCHIVE`)
 const nullFileHash = `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 async function checkDuplicates(newManifest){
@@ -33,7 +33,7 @@ async function checkDuplicates(newManifest){
             var {oldest, newest} = await oldNew(dupeFiles)
             console.log(`File hash of ...${dKey.slice(-10)} has ${dupeCounts[dKey]} duplicate${dupeCounts[dKey]>1?'s':''}`)
             for(var fPath of paths){
-                console.log(`${dKey.slice(-10)} -> .${fPath.split(`!SARCAT_ARCHIVE!`)[1]}`)
+                console.log(`${dKey.slice(-10)} -> .${fPath.split(`__SARCAT_ARCHIVE`)[1]}`)
             }
             console.log(`Preferring oldest file: ${oldest.data.path}/${oldest.data.name}\n`)
             postDupeCheckFiles.push(oldest)
@@ -59,7 +59,7 @@ async function registerNewFiles(postDupeCheckFiles, rawScanFileRegistry){
         file.type = 'file'
         file.extension = file.name.split('.')[1]
         rawScanFileRegistry.data.files.push(file)
-        console.log(`Registered: .${file.path.split(`!SARCAT_ARCHIVE!`)[1]}/${file.name}`)
+        console.log(`Registered: .${file.path.split(`__SARCAT_ARCHIVE`)[1]}/${file.name}`)
     }
     await rawScanFileRegistry.write()
     return rawScanFileRegistry.data.files.filter(x=>x.currentStatus.status == 'new')
@@ -70,7 +70,7 @@ async function nullFileCheck(newManifest){
     if(nullFiles.length > 0){
         console.log(`SARCAT detected several files with null data`)
         for(var file of nullFiles){
-            console.log(`${chalk.red(`Null data:`)} .${file.path.split(`!SARCAT_ARCHIVE!`)[1]}/${file.name}`)
+            console.log(`${chalk.red(`Null data:`)} .${file.path.split(`__SARCAT_ARCHIVE`)[1]}/${file.name}`)
         }
     }
     return newManifest.data.filter(x=>x.data.fileHash != nullFileHash)

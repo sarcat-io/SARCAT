@@ -1,24 +1,29 @@
-import {generateKeyPairSync, createPrivateKey} from 'crypto'
+import {generateKeyPairSync, createPrivateKey, createCipheriv, createDecipheriv,publicEncrypt, createPublicKey} from 'crypto'
+import {Easy} from 'easy-lowdb'
 import {MerkleTree} from 'merkletreejs'
 import crypto from 'crypto'
 import CryptoJS from 'crypto-js'
 import SHA256 from 'crypto-js/sha256.js'
 import { _SC_utilities } from './index_utilities.mjs'
+import { _SC_commonData } from '../../commonData/index_commonData.mjs'
 import { config } from 'process'
 import prompt from './promptUser.mjs'
+import { createWriteStream } from 'fs'
 const isObject = new _SC_utilities().isObject
 const uuid = new _SC_utilities().uuid
-
+const _cd = new _SC_commonData()
+await _cd.loadSarcat()
 export class _SC_crypto {
     constructor (_SC_classObject){
         for(var main in _SC_classObject){
             this[main] = _SC_classObject[main]
         }
+
     }
     
     keyPairGeneration = async (password) => {
         if (password){
-            var keyPair = generateKeyPairSync('x448', {
+            var keyPair = generateKeyPairSync('rsa', {
                 modulusLength: 4096,
                 publicKeyEncoding: {
                     type: 'spki',
@@ -32,7 +37,7 @@ export class _SC_crypto {
                 }
             });
         } else {
-            var keyPair = generateKeyPairSync('x448', {
+            var keyPair = generateKeyPairSync('rsa', {
                 modulusLength: 4096,
                 publicKeyEncoding: {
                     type: 'spki',
@@ -47,45 +52,79 @@ export class _SC_crypto {
         return keyPair
     }
 
-    decrypt_bundle = async () => {
-        
+    decrypt_bundle = async (bundle, iv, privateKey, data,authTag) => {
+
+        var decipher = createDecipheriv('aes-256-gcm', privateKey, iv)
+        decipher.setAuthTag(Buffer.from(authTag, 'hex'))
+        const decrypted = decipher.update(data, 'hex', 'utf-8') + decipher.final('utf-8')
+        console.log(123, decrypted)
+
+
+
     }
-    encrypt_bundle = async () => {
-        
+    encrypt_bundle = async (publicKey, privateKey, readFileStream, writeFileStream, writeStreamPath, doneEvent) => {
+        var symmetricKey = async () =>{
+            var rng = crypto.randomInt(10**10)
+            var symKey = await this.makeHash(rng)
+            var tmpKey = ''
+            for(var i=0;i<symKey.length;i+=2){
+                tmpKey+=symKey[i]
+            }
+            return tmpKey
+        }
+        var encSymmetricKey = async (key, publicKey) =>{
+            var pK = createPublicKey(publicKey.toString('utf-8'))
+            return publicEncrypt(pK, Buffer.from(key)).toString('hex')
+        }
+        var encBundle = async (publicKey, symKey, readFileStream, writeFileStream, writeStreamPath, doneEvent) =>{
+            var encrypted
+            var iv =  crypto.randomBytes(16)
+            var cipher = createCipheriv('aes-256-gcm',Buffer.from(symKey),iv)
+            readFileStream.on('data', (chunk) =>{
+                encrypted = cipher.update(chunk)
+            })
+            readFileStream.on('end', async ()=> {
+                encrypted += cipher.final()
+                var cipherBuf = Buffer.from(encrypted)
+                const authTag = cipher.getAuthTag().toString('hex')
+                writeFileStream.write(cipherBuf)
+                var encRecord = {data: {iv: iv.toString('hex'), encSymmetricKey: await encSymmetricKey(symKey, publicKey), authTag:authTag, encObjPath:writeStreamPath}}
+                encRecord.hash = await this.makeHash(encRecord.data)
+                encRecord.signedHash = await this.signHash(await this.password('Enter your password to digitally sign data'), privateKey, encRecord.hash)
+                doneEvent.emit('done',encRecord)
+            })
+        }
+        encBundle(publicKey, await symmetricKey(), readFileStream, writeFileStream, writeStreamPath, doneEvent)
     }
     makeHash = async (data) => {
         var hash = CryptoJS.SHA256(data)
         return hash.toString(CryptoJS.enc.Hex)
     }
 
-    signHash = async () => {
-        // var cryptoKey_db = await read('cryptoKeys',__datadir)
-        if(password){
+    signHash = async (pw, privateKey, hash) => {
+        if(pw){
             var privateKey = createPrivateKey({
-                'key': cryptoKey_db[keyUID].privateKey,
+                'key': privateKey,
                 'format': 'pem',
                 'type': 'pkcs8',
                 'cipher': 'aes-256-cbc',
-                'passphrase': password
+                'passphrase': pw
             });
-        } else{
-            var privateKey = cryptoKey_db[keyUID].privateKey
+            const sign = crypto.createSign('RSA-SHA256');
+            sign.update(Buffer.from(hash))
+            return Buffer.from(sign.sign(privateKey)).toString('hex')
         }
-        const sign = crypto.createSign('RSA-SHA256');
-        sign.update(Buffer.from(txHash))
-        return Buffer.from(sign.sign(privateKey)).toString('hex')
     }
 
     verifyHash = async(txObj, origHash) => {
         return (await simpleHash(txObj) == origHash)
     }
 
-    verifySignHash = async (keyUID, hash, signedHash) => {
-        var cryptoKey_db = await read('cryptoKeys',__datadir)
+    verifySignHash = async (publicKey, hash, signedHash) => {
         const verify = crypto.createVerify('RSA-SHA256');
         verify.write(Buffer.from(hash));
         verify.end();
-        var verifyOutput = await verify.verify(cryptoKey_db[keyUID].publicKey, signedHash, 'hex')
+        var verifyOutput = await verify.verify(publicKey, signedHash, 'hex')
         return verifyOutput
     }
 
@@ -142,6 +181,10 @@ export class _SC_crypto {
         // ned to store public keys for AOs in github
         await this.sarcatConfig.read()
         await this.keyManagement.read()
+        if(await (await this.keyManagement.data.keyPairs.filter(x=>x.role == "AO")).length == 0){
+            this.keyManagement.data.keyPairs.push(_cd.sarcat.ao_keypairs)
+            await this.keyManagement.write()
+        }
         if(role='ISSO'){
             var keys = this.keyManagement.data.keyPairs.filter(x=>x.role == role && x.operatorEmail == this.sarcatConfig.data.systemIdentification.operatorEmail)
             if(keys.length > 0){
@@ -168,7 +211,7 @@ export class _SC_crypto {
 
     loadPrivateKey = async (keys) => {
         var pw = await this.password()
-        console.log(keys, pw)
+        console.log(pw, 'loadkeys')
     }
 
     newPassword = async() => {
@@ -200,19 +243,19 @@ export class _SC_crypto {
             return this.newPassword()
         }
     }
-    password = async() => {
+    password = async(message) => {
 
         var questions_3 = [
             {
                 type: 'password',
                 name: 'password',
-                message: `Type in your password`,
-                mask: '-'
+                message: message? message : `Type in your password`,
+                mask: '*'
             }
         ]
         var configPrompt_3 = new prompt(questions_3)
-        var res = await configPrompt_3.ask()
-        return this.makeHash() 
+        var {password} = await configPrompt_3.ask()
+        return this.makeHash(password) 
     }
 
 

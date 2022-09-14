@@ -14,7 +14,7 @@ import { Easy } from 'easy-lowdb'
 import iterateDirectory from '../utilities/directoryIterator.mjs'
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-const archiveDirectory = normalize(`${process.cwd()}/../!SARCAT_ARCHIVE!`)
+const archiveDirectory = normalize(`${process.cwd()}/../__SARCAT_ARCHIVE`)
 const templateDirectory = normalize(`${process.cwd()}/../templates`)
 const registryDirectoy = normalize(`${process.cwd()}/../registry`)
 const archiveTemplate = new Easy('archive',`${templateDirectory}/archive`)

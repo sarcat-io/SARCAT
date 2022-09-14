@@ -42,13 +42,6 @@
     "template": ""
   },
   {
-    "label": "keyPairDirectory",
-    "name": "keyPairs",
-    "dir": "/.sarcat/",
-    "type": 2,
-    "template": ""
-  },
-  {
     "label": "rawScanFileDirectory",
     "name": "rawScanFiles",
     "dir": "/",
