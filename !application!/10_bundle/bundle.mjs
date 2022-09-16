@@ -16,16 +16,19 @@ const __dirname = dirname(__filename)
 const moduleRelPath = `.${__filename.split(process.cwd()).at(-1)}`
 var logObj = {module:moduleRelPath, function:'N/A'}
 const archiveDirectory = normalize(`${process.cwd()}/../__SARCAT_ARCHIVE`)
+/////// Preparing module global variables assigned from _SC / SARCAT_CLASS
+var directoryObject; var newFiles; var bundleRegistry; var rawScanFileRegistry; var sarcatConfig; var workingBundle; var updateRegistryEntry
+
 const monthList = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
 //////////
-async function updateRegistryEntry(updatedObject, db){
-    var key = `${updatedObject.type}s`
-    await db.read()
-    db.data[key] = db.data[key].filter(x=>x.uuid != updatedObject.uuid)
-    db.data[key].push(updatedObject)
-    await db.write()
-    return
-}
+// async function updateRegistryEntry(updatedObject, db){
+//     var key = `${updatedObject.type}s`
+//     await db.read()
+//     db.data[key] = db.data[key].filter(x=>x.uuid != updatedObject.uuid)
+//     db.data[key].push(updatedObject)
+//     await db.write()
+//     return
+// }
 
 async function newBundleObject(directoryObject, bundleDirectoryName, label, addFiles, status, ts, details, sarcatConfig){
     var endMonthIndex = monthList.indexOf(details.startMonth) + details.bundleDuration-1
@@ -59,21 +62,21 @@ async function newBundleObject(directoryObject, bundleDirectoryName, label, addF
     return bundleRegistationEntry
 }
 
-async function prepBundle(bundle, addFiles, bundleRegistry, rawScanFileRegistry){
+async function prepBundle(workingBundle, addFiles){
     var ts = Date.now()
-    bundle.data.journal.push({"action":"added files to bundle", "rawFileHashes":addFiles, "action_ts": ts})
+    workingBundle.data.journal.push({"action":"added files to bundle", "rawFileHashes":addFiles, "action_ts": ts})
     var bundleStatus = {"status": "in_process", "status_ts":Date.now()}
     var fileStatus = {"status": "in_bundle", "status_ts":Date.now()}
     for(var fileHash of addFiles){
         var fileStatus = {"status": "in_bundle", "status_ts":ts}
-        await addRawScanFileToBundle(fileHash, fileStatus, bundle.uuid, rawScanFileRegistry)
-        bundle.data.rawFileHashes.push(fileHash)
+        await addRawScanFileToBundle(fileHash, fileStatus, workingBundle.uuid, rawScanFileRegistry)
+        workingBundle.data.rawFileHashes.push(fileHash)
     }
-    bundle.currentStatus = bundleStatus
-    bundle.modified_ts = bundleStatus.status_ts
-    bundle.data.journal.push(bundleStatus)
-    await updateRegistryEntry(bundle, bundleRegistry)
-    return bundle
+    workingBundle.currentStatus = bundleStatus
+    workingBundle.modified_ts = bundleStatus.status_ts
+    workingBundle.data.journal.push(bundleStatus)
+    await updateRegistryEntry(workingBundle, bundleRegistry)
+    return workingBundle
 
 }
 
@@ -157,7 +160,7 @@ async function askBundleDetails(priorBundles){
     }
 }
 
-async function newBundle(directoryObject, bundleRegistry, sarcatConfig){
+async function newBundle(){
     await bundleRegistry.read()
     console.log(chalk.greenBright.bold('-----------------\nGenerating Bundle\n-----------------'))
     var label = await addLabel(bundleRegistry)
@@ -178,10 +181,10 @@ async function newBundle(directoryObject, bundleRegistry, sarcatConfig){
     return bundleRegistationEntry
 }
 
-async function addMoreQuestion(newFiles, workingBundle, rawScanFileRegistry){
+export async function manageBundleFiles(){
     await rawScanFileRegistry.read()
     var currentFiles = rawScanFileRegistry.data.files.filter(x=>workingBundle.data.rawFileHashes.includes(x.data.fileHash))
-    
+    var newFiles = rawScanFileRegistry.data.files.filter(x=>x.bundle == null)
     var options = []
     console.log(`This bundle has ${currentFiles.length} files:`)
     var count = 1
@@ -225,8 +228,9 @@ async function addMoreQuestion(newFiles, workingBundle, rawScanFileRegistry){
 
 }
 
-async function askAddFiles(newFiles){
+async function askAddFiles(){
     var options = []
+    var newFiles = rawScanFileRegistry.data.files.filter(x=>x.bundle == null)
     await newFiles.forEach(x=>{
         options.push({"name": `${x.name} in -> .${x.filePath.split(`__SARCAT_ARCHIVE`)[1]}/`, value:x.data.fileHash})
     })
@@ -248,9 +252,10 @@ async function bundleDescription(x){
     return `${x.label} | Status: ${x.currentStatus.status} | Created: ~ ${(humanizeDuration(Date.now() - x.created_ts)).split(', ').slice(0,2).join(' and ')} ago | Modified: ~ ${(humanizeDuration(Date.now() - x.modified_ts)).split(', ').slice(0,2).join(' and ')} ago | UUID: ${x.uuid}`
 }
 
-async function selectBundle(bundles){
+async function selectBundle(){
+    var unsealedBundles = bundleRegistry.data.bundles.filter(x=>x.currentStatus.status != "sealed")
     var options = []
-    await bundles.forEach(async (x)=>{
+    await unsealedBundles.forEach(async (x)=>{
         x.dirname = x.name
         x.name = await bundleDescription(x)
         x.value = x.uuid
@@ -272,19 +277,15 @@ async function selectBundle(bundles){
     if(bundleSelection == 'new'){
         return false
     } else {
-        return bundles.filter(x=>x.uuid == bundleSelection).pop()
+        return unsealedBundles.filter(x=>x.uuid == bundleSelection).pop()
     }
 }
 
-export async function removeFileFromBundle(bundleRegistry, rawScanFileRegistry, workingBundle){
+async function removeFileFromBundle(){
+
     if(!workingBundle){
-        var unsealedBundles = bundleRegistry.data.bundles.filter(x=>x.currentStatus.status != "sealed")
-        if(unsealedBundles.length > 0){
-            var workingBundle = await selectBundle(unsealedBundles)
-        } else {
-            return null
-        }
-    }
+        return null
+    } 
 
     var files = rawScanFileRegistry.data.files.filter(x=>workingBundle.data.rawFileHashes.includes(x.data.fileHash))
     var options = []
@@ -325,38 +326,32 @@ export async function removeFileFromBundle(bundleRegistry, rawScanFileRegistry, 
     
 }
 
-export async function stageBundle(directoryObject, newFiles, bundleRegistry,rawScanFileRegistry, sarcatConfig){
+export async function stageBundle(_SC_classObject){
+    directoryObject = _SC_classObject; bundleRegistry =_SC_classObject.bundleRegistry;rawScanFileRegistry = _SC_classObject.rawScanFileRegistry, sarcatConfig=_SC_classObject.configurationObject; updateRegistryEntry = _SC_classObject.updateRegistryEntry
     await bundleRegistry.read()
     await rawScanFileRegistry.read()
-    var unsealedBundles = bundleRegistry.data.bundles.filter(x=>x.currentStatus.status != "sealed")
-    if(unsealedBundles.length > 0){
-        var workingBundle = await selectBundle(unsealedBundles)
-
-        if(workingBundle == false){
-            workingBundle = await newBundle(directoryObject, bundleRegistry, sarcatConfig)
-        } else {
-            workingBundle.name = workingBundle.dirname
-            delete workingBundle.dirname
-            delete workingBundle.value
-            var moreQuestion = await await addMoreQuestion(newFiles, workingBundle, rawScanFileRegistry)
-            if(moreQuestion) {
-                var {addMore, removeSome} = moreQuestion 
-                if(addMore == true){
-                    workingBundle = await prepBundle(workingBundle, await askAddFiles(newFiles), bundleRegistry, rawScanFileRegistry)
-                }
-                if(removeSome == true){
-                    workingBundle = await removeFileFromBundle(bundleRegistry, rawScanFileRegistry, workingBundle)
-                }
-            }            
-        }
+    workingBundle = await selectBundle()
+    if(workingBundle == false){
+        workingBundle = await newBundle()
     } else {
-        var workingBundle = await newBundle(directoryObject, bundleRegistry, sarcatConfig)
+        workingBundle.name = workingBundle.dirname
+        delete workingBundle.dirname
+        delete workingBundle.value
     }
-    // await addStandardDirs(`${workingBundle.path}/${workingBundle.name}`)
+
+    var moreQuestion = await await manageBundleFiles()
+    if(moreQuestion) {
+        var {addMore, removeSome} = moreQuestion 
+        if(addMore == true){
+            workingBundle = await prepBundle(workingBundle, await askAddFiles())
+        }
+        if(removeSome == true){
+            workingBundle = await removeFileFromBundle()
+        }
+    }       
+
     await bundleRegistry.write()
-    if(rawScanFileRegistry){
-        await rawScanFileRegistry.write()
-    }
+    await rawScanFileRegistry.write()
     return workingBundle
 }
 // need to connect bundles / manual selection 

@@ -15,8 +15,12 @@ const iterateDirectory = new _SC_utilities().directoryIterator
 const _tmp = new _SC_templates()
 await _tmp.loadJSON()
 const archiveTemplateRegistry = _tmp.archive.archive
+var directoryObject
+var archiveDirectory
+var configurationObject
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-export async function setupArchive(archiveDirectory){
+export async function setupArchive(_sc){
+    directoryObject = _sc.directoryObject;configurationObject=_sc.configurationObject;archiveDirectory=directoryObject.archiveDirectory
     try {
         if(!existsSync(archiveDirectory)){
             console.log(`Creating SARCAT Archive Directory at ${archiveDirectory}`)

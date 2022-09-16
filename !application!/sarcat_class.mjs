@@ -21,7 +21,7 @@ export class _SC {
             this.directoryObject[x.label] = `${archiveDirectory}${x.dir}${x.name}`
         })
 
-        this.configurationObject = {}
+        this.configurationObject||={}
         
 
     }
@@ -57,31 +57,36 @@ export class _SC {
         db.data[key].push(updatedObject)
         await db.write()
         return
+        /**
+         *         
+        var updateEvent = new EventEmitter
+        
+        updateEvent.on('update', (updateObject, db_name) => {
+            this.updateRegistryEntry(updateObject, db_name)
+        })
+        
+         */
     }
 
-    runSetup = async()=>{
+    bootstrap = async () => {
         archiveTemplate.filter(z=>z.type == 1).forEach(x => {
             this.configurationObject[x.label] = {"easy":`${x.easy}`,"directory":`${this.directoryObject.archiveDirectory}${x.dir}`,"data":x.data}
         })
         for(var registry in this.configurationObject){
             this[registry] = new Easy(this.configurationObject[registry].easy, this.configurationObject[registry].directory)
             await this.easyInit(this[registry], this.configurationObject[registry].data)
-            // Promise.resolve(this.easyInit(this[registry],this.configurationObject[registry].data)).then(x=>{this[registry] = x})
         }
-        this.setup = new _SC_00_setup({directoryObject:this.directoryObject, configurationObject:this.configurationObject})
+        await this.sarcatConfig.read()
+        this.setup = new _SC_00_setup(this)
         this.bundle = new _SC_01_bundle(this)
         this.filesParse = new _SC_20_filesParse(this)
         this.crypto = new _SC_crypto(this)
-        var updateEvent = new EventEmitter
-        updateEvent.on('update', (updateObject, db_name) => {
-            this.updateRegistryEntry(updateObject, db_name)
-        })
-        if(await this.setup.config(await this.sarcatConfig.read())){
-            var workingBundle = await this.runBundle()
-            if(workingBundle){
-                
-            }
-        }
+
+    }
+    runSetup = async()=>{
+        await this.setup.archive(this)
+        await this.setup.config(this)
+        
     }
 
     runBundle = async () => {

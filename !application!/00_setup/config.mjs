@@ -16,11 +16,13 @@ const _cd = new _SC_commonData()
 await _cd.loadSarcat()
 const fedrampSystems = _cd.sarcat.fedrampSystems
 var states = _cd.sarcat.states
+var sarcatConfig
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-export async function stageConfig (sarcatConfig){
+export async function stageConfig (_SC_classObject){
+    sarcatConfig = _SC_classObject.sarcatConfig
     if(!sarcatConfig.data.systemIdentification || Object.keys(sarcatConfig.data.systemIdentification).length ==0){
         console.log(`SARCAT Archive Configuration Not Present`)
-        await newConfig(sarcatConfig)
+        await newConfig()
         return true
     } else {
         console.log(`SARCAT Archive Configuration Exists`)
@@ -28,7 +30,7 @@ export async function stageConfig (sarcatConfig){
     }
 }
 
-async function newConfig(sarcatConfig){
+async function newConfig(){
     const logLevels = [{"name":"Info", value: 0}, {"name":"Warning", value: 1},{"name":"Error", value: 2},{"name":"Critical", value: 3}]
     const questions_1 = [
         {

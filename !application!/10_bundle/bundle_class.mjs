@@ -12,7 +12,7 @@ export class _SC_01_bundle {
         }
     }
     bundle = async() =>{
-        await this.sarcatConfig.read()
-        return await stageBundle(this.directoryObject, null, this.bundleRegistry, await this.rawScanFileRegistry.read(), await this.sarcatConfig.read())
+        return await stageBundle(this)
+        // return await stageBundle(this.directoryObject, null, this.bundleRegistry, await this.rawScanFileRegistry.read(), await this.sarcatConfig.read())
     }
 }

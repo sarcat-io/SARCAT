@@ -20,10 +20,9 @@ const dockerImageZip = process.argv[4]
 const localWorkingDirectory = process.argv[3]
 console.log(dockerImageHash, dockerImageZip)
 async function _main_(){
-    if(await setupArchive(archiveDirectory)){
         const _sc = new _SC(archiveDirectory)
+        await _sc.bootstrap()
         await _sc.runSetup()
-    }
     // await _util.zipFolder(archiveDirectory)
     
 
