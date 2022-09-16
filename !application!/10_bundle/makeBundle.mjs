@@ -1,12 +1,17 @@
 import {existsSync, mkdirSync, writeFileSync} from 'node:fs'
-// import bundleTemplate from '../../templates/bundle/00_bundleTemplate-CSP.mjs'
+// import bundleTemplate from '../../templates/bundle/00_bundleTemplate-isso.mjs'
 import {spawn} from 'child_process'
 import {exec, execSync, spawnSync } from 'node:child_process'
 import { execPath } from 'node:process'
 import { Easy } from 'easy-lowdb'
 import { dirname, normalize } from 'path' //////////Native NodeJS local file path functions
-
-export async function addStandardDirs(bundleDirectory){
+var bundleDirectory
+var bundleTemplate
+var updateRegistryEntry
+export async function addStandardDirs(_SC_classObject, workingBundle){
+    updateRegistryEntry = _SC_classObject.updateRegistryEntry
+    bundleDirectory = `${_SC_classObject.directoryObject.bundleDirectory}/${workingBundle.label}`
+    bundleTemplate = _SC_classObject.templates.bundle.bundleISSO
     console.log('Checking bunding file structure')
     try {
         if(!existsSync(bundleDirectory)){

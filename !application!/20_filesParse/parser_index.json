@@ -1,0 +1,62 @@
+{
+  "array": [],
+  "parser_index": [
+    {
+      "uuid": "81a858d5-b8fc-4995-bcff-01a93710c7bd",
+      "author": "brian.thompson@sarcat.io",
+      "toolName": "nessusParser",
+      "version": "v1.0.0",
+      "organization": "sarcat",
+      "assessmentTypes": [
+        "vulnerability",
+        "configuration"
+      ],
+      "rawDataVendor": "Tenable",
+      "rawDataTool": "Nessus",
+      "rawDataVersion": "1.0",
+      "rawDataFomat": "xml",
+      "rawDataEncoding": "utf-8",
+      "fileExtensions": [
+        "nessus"
+      ],
+      "language": {
+        "nodejs": "v18.8.0"
+      },
+      "run": {
+        "method": "shell",
+        "function": null
+      },
+      "dependencies": [
+        {
+          "name": "fast-xml-parser",
+          "version": "3.19.0"
+        },
+        {
+          "name": "he",
+          "version": "1.2.0"
+        }
+      ],
+      "packageManagerCommand": "npm i",
+      "runCommand": {
+        "shellExecutable": "node",
+        "fileName": "nessus.mjs",
+        "relativeDirectoryPath": "./"
+      },
+      "outputToConsole": false,
+      "isPkg": false,
+      "Dockerfile": [
+        "FROM node:lts-alpine",
+        "LABEL sarcat=true",
+        "LABEL sarcat_type=parser",
+        "VOLUME ['/sarcat_system']",
+        "WORKDIR /sarcat_system",
+        "RUN apk",
+        "COPY . .",
+        "WORKDIR /sarcat_system/!application!",
+        "RUN npm install",
+        "ENTRYPOINT [ 'node','index.mjs' ]"
+      ],
+      "modulePath": "/Users/brianthompson/Code/SARCAT/SARCAT/!application!/20_filesParse/parsers/sarcat"
+    }
+  ]
+}

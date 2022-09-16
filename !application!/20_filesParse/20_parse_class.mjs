@@ -11,9 +11,8 @@ export class _SC_20_filesParse {
         for(var main in _SC_classObject){
             this[main] = _SC_classObject[main]
         }
-        
     }
-    runFilesParse = async (workingBundle, updateEvent) => {
-        await parseFiles(workingBundle, await this.rawScanFileRegistry.read(), await this.bundleRegistry.read(), updateEvent)
+    filesParse = async (workingBundle) => {
+        await parseFiles(this, workingBundle)
     }
 }

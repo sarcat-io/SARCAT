@@ -13,18 +13,19 @@ import {_SC_templates} from '../templates/index_templates.mjs'
 const _tmp = new _SC_templates
 import {_SC_crypto} from './utilities/crypto_class.mjs'
 const _crypto = new _SC_crypto()
-import {_SC_00_setup} from './00_setup/setup_class.mjs'
-const setupArchive = new _SC_00_setup(archiveDirectory).archive
+///////////////////////////////////////////////////////////////
 const dockerImageHash = process.argv[5]
 const dockerImageZip = process.argv[4]
 const localWorkingDirectory = process.argv[3]
-console.log(dockerImageHash, dockerImageZip)
+// console.log(dockerImageHash, dockerImageZip)
+///////////////////////////////////////////////////////////////
 async function _main_(){
         const _sc = new _SC(archiveDirectory)
         await _sc.populateArchive()
         await _sc.bootstrap()
-        await _sc.runSetup()
-        await _sc.runBundle()
+        await _sc.runSetup_00()
+        var workingBundle = await _sc.runBundle_10()
+        await _sc.runParse_20(workingBundle)
     // await _util.zipFolder(archiveDirectory)
     
 

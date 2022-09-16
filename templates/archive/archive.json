@@ -91,7 +91,8 @@
     "name": "bundleRegistry.sarcat.json",
     "dir": "/.sarcat/configurations/",
     "type": 1,
-    "data": {"bundles":[]}
+    "data": {"bundles":[]},
+    "key": "bundles"
   },
   {
     "label": "sarcatConfig",
@@ -108,7 +109,8 @@
     "name": "rawScanFileRegistry.sarcat.json",
     "dir": "/.sarcat/configurations/",
     "type": 1,
-    "data": {"files":[]}
+    "data": {"files":[]},
+    "key": "files"
   },
   {
     "label": "archiveJournal",
@@ -126,7 +128,8 @@
     "dir": "/.sarcat/configurations/",
     "type": 1,
     "template": "",
-    "data":{"keyPairs":[]}
+    "data":{"keyPairs":[]},
+    "key": "keyPairs"
   },
   {
     "label": "deliverableDirectory",

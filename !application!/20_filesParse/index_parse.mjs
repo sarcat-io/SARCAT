@@ -20,6 +20,7 @@ import isDocker from 'is-docker'; //////////Checks if this module is running in 
 import semver from 'semver' //////////Tool for parsing and comparing parser dependency versions
 import promptUser from '../utilities/promptUser.mjs'
 const makeHash = new _SC_crypto().makeHash
+var directoryObject; var newFiles; var bundleRegistry; var rawScanFileRegistry; var sarcatConfig; var workingBundle; var updateRegistryEntry
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //////////Parser Dependency Check
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -74,7 +75,9 @@ async function registerParsers(){
     return
 }
 
-async function getParsers(rawScanFiles, bundleFileHashes){
+async function getParsers(){
+    var rawScanFiles = rawScanFileRegistry.data.files
+    var bundleFileHashes = workingBundle.data.rawFileHashes
     var extSet = new Set()
     var parsers = {}
     await registerParsers()
@@ -150,7 +153,7 @@ async function loadParsers({parsers, bundleFiles, extensions, addEvidenceFiles2B
 //////////Raw Scan File processing
 //////////////////////////////////////////////////////////////////////////
 
-async function parseFiles(runObj,workingBundle,rawScanFileRegistry, bundleRegistry, updateEvent){
+async function parseFiles(runObj,workingBundle){
     console.log(chalk.greenBright.bold('-----------------\nBegin Parsing\n-----------------'))
     var fileCounter = 1
     var extCounter = 1
@@ -217,19 +220,23 @@ async function parseFiles(runObj,workingBundle,rawScanFileRegistry, bundleRegist
     workingBundle.data.journal.push(bundleAction)
     workingBundle.data.parsedFileHashes = parsedFileHashes
     workingBundle.hash = await makeHash(Buffer.from(JSON.stringify(workingBundle.data)))
-    updateEvent.emit('update', workingBundle, bundleRegistry)
+    await updateRegistryEntry(workingBundle, bundleRegistry)
     return workingBundle
 }
 //////////////////////////////////////////////////////////////////////////
 //////////This Module Entry Point
 //////////////////////////////////////////////////////////////////////////
 
-export default async function (workingBundle, rawScanFileRegistry, bundleRegistry, updateEvent){
-
-    var parseObject = await getParsers(rawScanFileRegistry.data.files,workingBundle.data.rawFileHashes)
+export default async function (_SC_classObject,workingBundle_){
+    workingBundle = workingBundle_
+    directoryObject = _SC_classObject; bundleRegistry =_SC_classObject.bundleRegistry;rawScanFileRegistry = _SC_classObject.rawScanFileRegistry, sarcatConfig=_SC_classObject.sarcatConfig; updateRegistryEntry = _SC_classObject.updateRegistryEntry
+    await rawScanFileRegistry.read()
+    await bundleRegistry.read()
+    
+    var parseObject = await getParsers()
     parseObject.bundleDirectory = `${workingBundle.path}/${workingBundle.name}`
     // loadParsers({parsers:parsers, rawScanFiles: rawScanFiles, extensions: parserExtensions})
-    return await parseFiles(parseObject,workingBundle,rawScanFileRegistry, bundleRegistry, updateEvent)
+    return await parseFiles(parseObject,workingBundle)
     
     //log activity output to activityLog
     // check that all files are parsed and update bundle status before running normalize

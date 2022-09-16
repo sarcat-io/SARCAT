@@ -24,7 +24,7 @@ export class _SC_templates {
                 console.error(template_file.name, err)
             }
         }
-        return
+        return this
     }
     loadModules = async () => {
         var modules = await (await this._di(`${__dirname}`)).filter(x=>x.extension == 'mjs')

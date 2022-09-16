@@ -6,21 +6,16 @@ import { EventEmitter } from 'node:events'
 import {readdirSync, readFileSync, existsSync, mkdirSync, writeFileSync, readdir} from 'node:fs' //////////Native NodeJS File Management
 import { dirname, normalize } from 'path' //////////Native NodeJS local file path functions
 import { _SC_templates } from '../templates/index_templates.mjs'
-const _tmp = new _SC_templates()
-await _tmp.loadJSON()
-import {_SC_00_setup} from './00_setup/setup_class.mjs'
-import { _SC_01_bundle } from './10_bundle/bundle_class.mjs'
-import { _SC_20_filesParse } from './20_filesParse/parse_class.mjs'
+import {_SC_00_setup} from './00_setup/00_setup_class.mjs'
+import { _SC_10_bundle } from './10_bundle/10_bundle_class.mjs'
+import { _SC_20_filesParse } from './20_filesParse/20_parse_class.mjs'
 import { _SC_crypto } from './utilities/crypto_class.mjs'
 
-const archiveTemplate = _tmp.archive.archive
+
 export class _SC {
     constructor (archiveDirectory){
+        this.templates = new _SC_templates()
         this.directoryObject = {archiveDirectory: archiveDirectory}
-        archiveTemplate.filter(z=>z.type == 2).forEach(x => {
-            this.directoryObject[x.label] = `${archiveDirectory}${x.dir}${x.name}`
-        })
-
         this.configurationObject||={}
         
 
@@ -34,7 +29,7 @@ export class _SC {
     }
 
 
-    easyInit = async (easyObj,data) => {
+    easyInit = async (easyObj,data,name) => {
         try {
             await easyObj.read()
             if(data){
@@ -44,19 +39,21 @@ export class _SC {
                     }
                 }
             }
+            easyObj.data.db_name = name
             return await easyObj.write()
         } catch(err){
             console.log(easyObj, err)
         }
     }
 
-    updateRegistryEntry = async (updatedObject, db_name) => {
-        var db = await this.easyInit(db_name)
-        var key = this.configurationObject[db_name].data
-        db.data = db.data[key].filter(x=>x.uuid != updatedObject.uuid)
-        db.data[key].push(updatedObject)
-        await db.write()
-        return
+    updateRegistryEntry = async (updatedObject, db) => {
+        if(this.configurationObject[db.name]){
+            var key = this.configurationObject[db.name].key
+            db.data = db.data[key].filter(x=>x.uuid != updatedObject.uuid)
+            db.data[key].push(updatedObject)
+            await db.write()
+            return
+        }
         /**
          *         
         var updateEvent = new EventEmitter
@@ -69,35 +66,39 @@ export class _SC {
     }
 
     populateArchive = async() => {
+        this.templates = await this.templates.loadJSON()
+        this.templates.archive.archive.filter(z=>z.type == 2).forEach(x => {
+            this.directoryObject[x.label] = `${this.directoryObject.archiveDirectory}${x.dir}${x.name}`
+        })
         this.setup = new _SC_00_setup(this)
         return await this.setup.archive(this)
     }
 
     bootstrap = async () => {
-        archiveTemplate.filter(z=>z.type == 1).forEach(x => {
-            this.configurationObject[x.label] = {"easy":`${x.easy}`,"directory":`${this.directoryObject.archiveDirectory}${x.dir}`,"data":x.data}
+        this.templates.archive.archive.filter(z=>z.type == 1).forEach(x => {
+            this.configurationObject[x.label] = {"easy":`${x.easy}`,"directory":`${this.directoryObject.archiveDirectory}${x.dir}`,"data":x.data, "key": x.key? x.key:null}
         })
         for(var registry in this.configurationObject){
             this[registry] = new Easy(this.configurationObject[registry].easy, this.configurationObject[registry].directory)
-            await this.easyInit(this[registry], this.configurationObject[registry].data)
+            await this.easyInit(this[registry], this.configurationObject[registry].data,registry)
         }
-        
+
         this.crypto = new _SC_crypto(this)
         return
     }
-    runSetup = async()=>{
+    runSetup_00 = async()=>{
         this.setup = new _SC_00_setup(this)
-        await this.setup.config(this)
+        return await this.setup.config(this)
     }
 
-    runBundle = async () => {
-        this.bundle = new _SC_01_bundle(this)
-        var res = await this.bundle.bundle(this)
+    runBundle_10 = async () => {
+        this.bundle = new _SC_10_bundle(this)
+        return await this.bundle.bundle(this)
     }
 
-    runData = async () => {
-        this.filesParse = new _SC_20_filesParse(this)
-        var res = await this.filesParse(workingBundle)
+    runParse_20 = async (workingBundle) => {
+        this.parse = new _SC_20_filesParse(this)
+        return await this.parse.filesParse(workingBundle)
         // var rawFileRes = await this.stage.rawFiles(this.directoryObject, this.rawScanFileRegistry)
     }
     runParseNormalize = async () => {

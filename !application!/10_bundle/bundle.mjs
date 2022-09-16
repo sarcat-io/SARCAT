@@ -51,13 +51,18 @@ async function newBundleObject(bundleDirectoryName, label, addFiles, status, ts,
         "isSolo": details.independent,
         "currentStatus": status,
         "name": bundleDirectoryName,
-        "path": directoryObject.bundleDirectory,
+        "path": `${directoryObject.bundleDirectory}/${label}`,
         "type":"bundle",
         "data":{
+            "meta":{},
             "journal": [status],
-            "rawFileHashes": addFiles?addFiles:null
+            "rawFileHashes": addFiles?addFiles:null,
         }
     }
+    bundleRegistationEntry.data.meta = Object.assign({},bundleRegistationEntry)
+    delete bundleRegistationEntry.data.meta.data
+    delete bundleRegistationEntry.data.meta.currentStatus
+    delete bundleRegistationEntry.data.meta.modified_ts
     bundleRegistationEntry.hash = await makeHash(Buffer.from(JSON.stringify(bundleRegistationEntry.data)))
     return bundleRegistationEntry
 }
@@ -75,7 +80,7 @@ async function prepBundle(workingBundle, addFiles){
     workingBundle.currentStatus = bundleStatus
     workingBundle.modified_ts = bundleStatus.status_ts
     workingBundle.data.journal.push(bundleStatus)
-    await updateRegistryEntry(workingBundle, bundleRegistry)
+    await updateRegistryEntry(workingBundle, bundleRegistry, 'bundles')
     return workingBundle
 
 }
@@ -148,7 +153,8 @@ async function askBundleDetails(priorBundles){
             {
                 type: 'confirm',
                 name: 'independent',
-                message: 'This bundle is a one-off (e.g., not correlated with or connected to other bundles)'
+                message: 'This bundle is a one-off (e.g., not correlated with or connected to other bundles)',
+                default: false
             })
     }
     try {
@@ -210,8 +216,6 @@ export async function manageBundleFiles(){
         console.log(chalk.red(`There are no regitered files to add to the bundle and no files added to the bundle to remove.`))
     }
     if(options.length > 0){
-        console.log(options)
-
         var question =
         {
             type: 'list',
@@ -328,7 +332,7 @@ async function removeFileFromBundle(){
 }
 
 export async function stageBundle(_SC_classObject){
-    directoryObject = _SC_classObject; bundleRegistry =_SC_classObject.bundleRegistry;rawScanFileRegistry = _SC_classObject.rawScanFileRegistry, sarcatConfig=_SC_classObject.sarcatConfig; updateRegistryEntry = _SC_classObject.updateRegistryEntry
+    directoryObject = _SC_classObject.directoryObject; bundleRegistry =_SC_classObject.bundleRegistry;rawScanFileRegistry = _SC_classObject.rawScanFileRegistry, sarcatConfig=_SC_classObject.sarcatConfig; updateRegistryEntry = _SC_classObject.updateRegistryEntry
     await bundleRegistry.read()
     await rawScanFileRegistry.read()
     workingBundle = await selectBundle()
