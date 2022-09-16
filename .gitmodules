@@ -1,0 +1,3 @@
+[submodule "sarcat-io.github.io"]
+	path = sarcat-io.github.io
+	url = https://github.com/sarcat-io/sarcat-io.github.io.git
