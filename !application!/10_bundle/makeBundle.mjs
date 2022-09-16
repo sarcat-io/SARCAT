@@ -37,6 +37,7 @@ export async function addStandardDirs(_SC_classObject, workingBundle){
             }
             
         }
+        console.log('Bundle content structure complete')
     } catch(err){
         console.error(`Error: Make Bundle | Add Standard Dirs -> ${err}`)
     }

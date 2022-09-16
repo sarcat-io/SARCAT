@@ -214,7 +214,7 @@ export async function manageBundleFiles(){
         options.push(await sep())
     }
     if((newFiles && newFiles.length==0) &&(currentFiles && currentFiles.length==0)){
-        console.log(chalk.red(`There are no regitered files to add to the bundle and no files added to the bundle to remove.`))
+        console.log(chalk.red(`There are no registered files to add to the bundle and no files added to the bundle to remove.`))
     }
     if(options.length > 0){
         var question =
@@ -229,7 +229,7 @@ export async function manageBundleFiles(){
         var {bundleFiles} = await askWhichFiles.ask()
         return bundleFiles
     } else {
-        return 
+        return null
     }
 
 }

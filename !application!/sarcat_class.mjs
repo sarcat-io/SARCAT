@@ -97,8 +97,13 @@ export class _SC {
     }
 
     runParse_20 = async (workingBundle) => {
-        this.parse = new _SC_20_filesParse(this)
-        return await this.parse.filesParse(workingBundle)
+        if(this.rawScanFileRegistry.data.files.length > 0){
+            this.parse = new _SC_20_filesParse(this)
+            return await this.parse.filesParse(workingBundle)
+        } else {
+            return null
+        }
+
         // var rawFileRes = await this.stage.rawFiles(this.directoryObject, this.rawScanFileRegistry)
     }
     runParseNormalize = async () => {

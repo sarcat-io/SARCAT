@@ -93,7 +93,7 @@ export async function baseManifest (configObject) {
             }
         }))
     } else {
-        console.log(`No contents found in the container volume directory: ${chalk.inverse(targetFolder)}\nTo resolve this: On the host system that is running the SARCAT Container, copy files to this directory:\n${chalk.dim('-')}\n${chalk.yellowBright(`${process.argv[2]}/${targetFolder}`)}\n${chalk.dim('-')}\n${chalk.greenBright.bold(`Re-run SARCAT once files are added`)}`)
+        console.log(`No contents found in the container volume directory: ${chalk.inverse(targetFolder)}\nTo resolve this: On the host system that is running the SARCAT Container, copy files to this directory:\n${chalk.dim('-')}\n${chalk.yellowBright(`${process.argv[2]}/${targetFolder}`)}\n${chalk.dim('-')}\n${chalk.whiteBright.bold(`Make Note:  `)}${chalk.greenBright(`Re-run SARCAT once files are added to the directory above`)}\n${chalk.dim('-')}`)
         return null
     }
     

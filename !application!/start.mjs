@@ -27,6 +27,7 @@ async function _main_(){
         await _sc.bootstrap()
         await _sc.runSetup_00()
         var workingBundle = await _sc.runBundle_10()
+        // console.log(workingBundle.data.fileHashes)
         await _sc.runParse_20(workingBundle)
     // await _util.zipFolder(archiveDirectory)
     
