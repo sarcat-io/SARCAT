@@ -1,13 +1,13 @@
 import he from 'he'
 import parser from 'fast-xml-parser'
 import { Easy } from 'easy-lowdb'
-import {createReadStream} from 'fs'
+import {createReadStream, createWriteStream} from 'node:fs'
 /**
  * var numberSeverity = {
-    0: (count) => {console.log(`${chalk.dim('Info:')} ${count}`)},
-    1: (count) => {console.log(`${chalk.whiteBright('Low:')} ${count}`)},
-    2: (count) => {console.log(`${chalk.yellow('Moderate:')} ${count}`)},
-    3: (count) => {console.log(`${chalk.red('High:')} ${count}`)},
+    0: (count) => {console.log(`${'Info:')} ${count}`},
+    1: (count) => {console.log(`${'Low:')} ${count}`},
+    2: (count) => {console.log(`${'Moderate:')} ${count}`},
+    3: (count) => {console.log(`${'High:')} ${count}`},
     4: (count) => {console.log(`${chalk.redBright.bold('Critical:')} ${count}`)}
 }
  */
@@ -41,7 +41,8 @@ var numberSeverity = {
 
 export async function parse({fileName, data, outputDirectory}){
     var parseSummary = {}
-
+    var _scanParse_db = new Easy(`${fileName.slice(0, -7)}_parsed`,`${outputDirectory}`)
+    await _scanParse_db.read()
     if (parser.validate(data) === true) { 
         var jsonObj = parser.parse(data, xmlParserOptions);
         console.log('Parsing Filename:',fileName)
@@ -56,22 +57,35 @@ export async function parse({fileName, data, outputDirectory}){
         }))
         var reportItemsSet = new Set(reportItems)
         reportItemsSet = [...reportItemsSet]
-
-        var _scanParse_db = new Easy(`${fileName.slice(0, -7)}_parsed`,`${outputDirectory}/02-01_raw-scan-data`)
-        await _scanParse_db.read()
-        _scanParse_db.data = scanParse_db
-        await _scanParse_db.write()
-
-        console.log(`Nessus: file named ${fileName} contained:\n`)
-        console.log(`${chalk.whiteBright(` -| `)}Unique Hosts: ${hostInfoSet.length} `)
-        console.log(`${chalk.whiteBright(` -| `)}Total Reports: ${reportItems.length} total reports`)
-        console.log(`${chalk.whiteBright(` -| `)}Unique Vulns: ${reportItemsSet.length} unique reports`)
-        console.log(`${chalk.whiteBright(` -| `)}Unique Vulns by Severity:`)
-        for(var k of Object.keys(sevCount)){
-            console.log(`${chalk.whiteBright(`  |-   `)}${numberSeverity[k]}: ${sevCount[k]}`)
+        var sevDict={}
+        var sevCount={}
+        await reportItems.forEach(x=>{
+            var sev = Number(x.split('_')[0])
+            sevDict[sev]||=[]
+            sevDict[sev].push(x)
+        })
+        for(var sev in sevDict){
+            sevDict[sev] = [...new Set(sevDict[sev])]
+            sevCount[sev]= sevDict[sev].length
         }
-        console.log()
+
+        try {
+            _scanParse_db.data = Object.assign({},scanParse_db)
+            await _scanParse_db.write()
+        } catch(err){
+            console.log(err)
+        }
+
         console.log(`Successfully created ${fileName.slice(0, -7)}_parsed.json (Raw .nessus XML -> Raw JSON)`)
+        console.log(`File ${fileName} output contains:`)
+        console.log(` -| Unique Hosts: ${hostInfoSet.length}`)
+        console.log(` -| Total Reports: ${reportItems.length} total reports`)
+        console.log(` -| Unique Vulns: ${reportItemsSet.length} unique reports`)
+        console.log(` -| Unique Vulns by Severity:`)
+        console.log(`SARCAT_SEPARATOR`)
+        for(var k of Object.keys(sevCount)){
+            console.log(`  |-   ${numberSeverity[k]}: ${sevCount[k]}`)
+        }
         console.log(`SARCAT_OUT|${fileName.slice(0, -7)}_parsed.json|${outputDirectory}02-01_raw-scan-data|parsed`)
 
 
@@ -223,7 +237,7 @@ async function summary(scanParse_db){
             vulnHostDict: vulnHostDict
         }
 
-        var _parseSummary = new Easy(`${fileName.slice(0, -7)}_summary`,`${outputDirectory}/02-02_intermediate-objects`)
+        var _parseSummary = new Easy(`${fileName.slice(0, -7)}_summary`,`${outputDirectory}`)
         await _parseSummary.read()
         _parseSummary.data = parseSummary[fileName]
         await _parseSummary.write()

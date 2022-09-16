@@ -149,7 +149,6 @@ async function newConfig(){
 
     var configPrompt_1 = new prompt(questions_1)
     console.log('-----------------')
-    await configPrompt_1.sarcat_art()
     var answers_1 = await configPrompt_1.ask()
     var systemList = []
 

@@ -20,7 +20,7 @@ import isDocker from 'is-docker'; //////////Checks if this module is running in 
 import semver from 'semver' //////////Tool for parsing and comparing parser dependency versions
 import promptUser from '../utilities/promptUser.mjs'
 const makeHash = new _SC_crypto().makeHash
-var directoryObject; var newFiles; var bundleRegistry; var rawScanFileRegistry; var sarcatConfig; var workingBundle; var updateRegistryEntry
+var directoryObject; var newFiles; var bundleRegistry; var rawScanFileRegistry; var sarcatConfig; var workingBundle; var updateRegistryEntry; var archiveDirectory
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //////////Parser Dependency Check
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,22 @@ async function exists(uuid){
     } else {
         return false
     }
+}
+
+var numberSeverity = {
+    0: (count) => `${chalk.dim('Information:')} ${count}`,
+    1: (count) => `${chalk.whiteBright('Low:')} ${count}`,
+    2: (count) => `${chalk.yellow('Moderate:')} ${count}`,
+    3: (count) => `${chalk.red('High:')} ${count}`,
+    4: (count) => `${chalk.redBright.bold('Critical:')} ${count}`
+}
+
+var wordSev2Num = {
+    "Information":0,
+    "Low":1,
+    "Moderate":2,
+    "High":3,
+    "Critical":4
 }
 
 async function iterateDir(targetDirectory){
@@ -76,6 +92,7 @@ async function registerParsers(){
 }
 
 async function getParsers(){
+    console.log(`Preparing parser engine`)
     var rawScanFiles = rawScanFileRegistry.data.files
     var bundleFileHashes = workingBundle.data.rawFileHashes
     var extSet = new Set()
@@ -95,18 +112,18 @@ async function getParsers(){
     var missingExtensions = extSet.filter(x=>!parserExtensions.includes(x))
     var question = async (ext) =>  {
         var options = []
-        await bundleFiles.filter(x=>x.extension == ext).forEach(y=>{options.push({name:`./${y.path.split('!SARCHAT_ARCHIVE!')[1]}/${y.name}`,value:y.data.fileHash})})
+        await bundleFiles.filter(x=>x.extension == ext).forEach(y=>{options.push({name:`.${y.path.split('__SARCAT_ARCHIVE')[1]}/${y.name}`,value:y.data.fileHash})})
         return {
             type: "checkbox",
             name: "addFiles",
-            message: `Select which of these ${chalk.redBright.bold(ext)} files to add to the bundle as evidence?`,
+            message: `Select which of these ${ext} files to add to the bundle as evidence?`,
             choices: options
         }
     }
     var addEvidenceFiles2Bundle = []
     for(var ext of missingExtensions){
         console.log(`No parsers found for file extension: ${ext}`)
-        var noParserPrompt = new promptUser(await question(ext))
+        var noParserPrompt = new promptUser([await question(ext)])
         var {addFiles} = await noParserPrompt.ask()
         var evidenceFiles = rawScanFiles.filter(x=>addFiles.includes(x.data.fileHash))
         addEvidenceFiles2Bundle.push(...evidenceFiles)
@@ -154,6 +171,7 @@ async function loadParsers({parsers, bundleFiles, extensions, addEvidenceFiles2B
 //////////////////////////////////////////////////////////////////////////
 
 async function parseFiles(runObj,workingBundle){
+    const sevSep = `  |-   `
     console.log(chalk.greenBright.bold('-----------------\nBegin Parsing\n-----------------'))
     var fileCounter = 1
     var extCounter = 1
@@ -165,11 +183,21 @@ async function parseFiles(runObj,workingBundle){
             console.log(`Extension: ${chalk.bold(ext)} (${extCounter++} of ${extensions.length}) | File: ${chalk.yellowBright(fileCounter++)} of ${scanFiles.length}`)
             parsedFileHashes.push(f.data.fileHash)
             var ts = Date.now()
-            var cmd = `${parserEngine[ext][0].cmd} ${normalize(`${f.filePath}/${f.name}`)} ${archiveDirectory}/parsedData/`
+            console.log()
+            var cmd = `${parserEngine[ext][0].cmd} ${normalize(`${f.path}/${f.name}`)} ${bundleDirectory}/02_assessment-data/02-01_raw-scan-data/`
             var res = execSync(cmd).toString()
             res = res.split('\n')
             var lines = res.filter(x=>x.indexOf('SARCAT_OUT') == 0)
-            res = res.filter(x=>x.indexOf('SARCAT_OUT') < 0).join('\n')
+            var splitter = res.indexOf('SARCAT_SEPARATOR')
+            var sevLines = res.filter(x=>x.indexOf(sevSep)==0)
+            res = res.slice(0,splitter)
+            for(var li of sevLines){
+                var liArr = li.split(sevSep)
+                var liSev = liArr[1].split(':')[0].trim()
+                var liCount = Number(liArr[1].split(':')[1].trim())
+                res.push(`${sevSep}${numberSeverity[wordSev2Num[liSev]](liCount)}`)
+            }
+            console.log(res.join('\n'))
             for(var l of lines){
                 l = l.split('|')
                 var mnf = new Easy(l[1],l[2])
@@ -189,7 +217,8 @@ async function parseFiles(runObj,workingBundle){
             f.data.journal.push(status)
             f.modified_ts = ts
             f.hash = await makeHash(Buffer.from(JSON.stringify(f.data)))
-            updateEvent.emit('update', f, rawScanFileRegistry)
+            await updateRegistryEntry(f, rawScanFileRegistry)
+
             // await updateRegistryEntry(f,rawScanFileRegistry)// complete db with read write
         }
         
@@ -211,7 +240,7 @@ async function parseFiles(runObj,workingBundle){
             f.data.journal.push(status)
             f.modified_ts = ts
             f.hash = await makeHash(Buffer.from(JSON.stringify(f.data)))
-            updateEvent.emit('update', f, rawScanFileRegistry)
+            updateRegistryEntry(f, rawScanFileRegistry)
         }
     }
     var ts = Date.now()
@@ -229,12 +258,14 @@ async function parseFiles(runObj,workingBundle){
 
 export default async function (_SC_classObject,workingBundle_){
     workingBundle = workingBundle_
-    directoryObject = _SC_classObject; bundleRegistry =_SC_classObject.bundleRegistry;rawScanFileRegistry = _SC_classObject.rawScanFileRegistry, sarcatConfig=_SC_classObject.sarcatConfig; updateRegistryEntry = _SC_classObject.updateRegistryEntry
+    var rawOutputDir = `${workingBundle.path}/02_assessment-data/02-01_raw-scan-data/`
+    var summaryOutputDir = `${workingBundle.path}/02_assessment-data/02-02_intermediate-objects/`
+    directoryObject = _SC_classObject; bundleRegistry =_SC_classObject.bundleRegistry;rawScanFileRegistry = _SC_classObject.rawScanFileRegistry, sarcatConfig=_SC_classObject.sarcatConfig; updateRegistryEntry = _SC_classObject.updateRegistryEntry; archiveDirectory=directoryObject.archiveDirectory
     await rawScanFileRegistry.read()
     await bundleRegistry.read()
     
     var parseObject = await getParsers()
-    parseObject.bundleDirectory = `${workingBundle.path}/${workingBundle.name}`
+    parseObject.bundleDirectory = workingBundle.path
     // loadParsers({parsers:parsers, rawScanFiles: rawScanFiles, extensions: parserExtensions})
     return await parseFiles(parseObject,workingBundle)
     

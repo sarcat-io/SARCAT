@@ -20,6 +20,7 @@ const makeHash = new _SC_crypto().makeHash
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 const archiveDirectory = normalize(`${process.cwd()}/../__SARCAT_ARCHIVE`)
 const nullFileHash = `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`
+var directoryObject; var bundleRegistry; var rawScanFileRegistry; 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 async function checkDuplicates(newManifest){
     var manifestFileHashes = newManifest.data.map(x=>x.data.fileHash)
@@ -76,8 +77,11 @@ async function nullFileCheck(newManifest){
     return newManifest.data.filter(x=>x.data.fileHash != nullFileHash)
 }
 
-export async function stageRawFiles(directoryObject, rawScanFileRegistry){
+export async function stageRawFiles(_SC_classObject){
     try {
+        directoryObject = _SC_classObject.directoryObject; bundleRegistry =_SC_classObject.bundleRegistry;rawScanFileRegistry = _SC_classObject.rawScanFileRegistry
+        await bundleRegistry.read()
+        await rawScanFileRegistry.read()
         var newManifest = await baseManifest({targetFolderPath: directoryObject.rawScanFileDirectory, writeFile: false})
         if(!newManifest){
             return null

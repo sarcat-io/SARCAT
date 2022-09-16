@@ -12,6 +12,7 @@ export class _SC_10_bundle {
         }
     }
     bundle = async() =>{
+        await stageRawFiles(this)
         var workingBundle = await stageBundle(this)
         await addStandardDirs(this,workingBundle)
         return workingBundle

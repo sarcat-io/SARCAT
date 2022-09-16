@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'url' //////////Native NodeJS fileUrl <> Path function
 import { dirname, normalize } from 'path' //////////Native NodeJS local file path functions
+import {logo, sarcat} from './logo.mjs'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 const moduleRelPath = `.${__filename.split(process.cwd()).at(-1)}`
@@ -20,6 +21,7 @@ const localWorkingDirectory = process.argv[3]
 // console.log(dockerImageHash, dockerImageZip)
 ///////////////////////////////////////////////////////////////
 async function _main_(){
+    console.log(logo)
         const _sc = new _SC(archiveDirectory)
         await _sc.populateArchive()
         await _sc.bootstrap()

@@ -12,14 +12,14 @@ export async function addStandardDirs(_SC_classObject, workingBundle){
     updateRegistryEntry = _SC_classObject.updateRegistryEntry
     bundleDirectory = `${_SC_classObject.directoryObject.bundleDirectory}/${workingBundle.label}`
     bundleTemplate = _SC_classObject.templates.bundle.bundleISSO
-    console.log('Checking bunding file structure')
+    console.log('Checking bundle content structure')
     try {
         if(!existsSync(bundleDirectory)){
-            console.log('Checking bunding directory')
+            console.log('Creating bundle content directory')
             mkdirSync(bundleDirectory)
         }
         if(!existsSync(`${bundleDirectory}${bundleTemplate[0].dir}${bundleTemplate[0].name}`)){
-            console.log('Adding standard bundle structure')
+            console.log('Adding standard content structure from template')
         }
         for(var obj of bundleTemplate){
             if(!existsSync(`${bundleDirectory}${obj.dir}${obj.name}`)){

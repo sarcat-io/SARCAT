@@ -47,9 +47,9 @@ export class _SC {
     }
 
     updateRegistryEntry = async (updatedObject, db) => {
-        if(this.configurationObject[db.name]){
-            var key = this.configurationObject[db.name].key
-            db.data = db.data[key].filter(x=>x.uuid != updatedObject.uuid)
+        if(this.configurationObject[db.data.db_name]){
+            var key = this.configurationObject[db.data.db_name].key
+            db.data[key] = db.data[key].filter(x=>x.uuid != updatedObject.uuid)
             db.data[key].push(updatedObject)
             await db.write()
             return
