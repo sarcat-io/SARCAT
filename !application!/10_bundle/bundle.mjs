@@ -30,7 +30,7 @@ const monthList = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP"
 //     return
 // }
 
-async function newBundleObject(directoryObject, bundleDirectoryName, label, addFiles, status, ts, details, sarcatConfig){
+async function newBundleObject(bundleDirectoryName, label, addFiles, status, ts, details){
     var endMonthIndex = monthList.indexOf(details.startMonth) + details.bundleDuration-1
         if(endMonthIndex > 11){
             var endMonth = monthList[endMonthIndex-12]
@@ -164,7 +164,6 @@ async function newBundle(){
     await bundleRegistry.read()
     console.log(chalk.greenBright.bold('-----------------\nGenerating Bundle\n-----------------'))
     var label = await addLabel(bundleRegistry)
-
     var details = await askBundleDetails(bundleRegistry.data.bundles)
     if(details.independent){
 
@@ -172,9 +171,8 @@ async function newBundle(){
         var bundleDirectoryName = `SARCAT_bundle_${String(bundleRegistry.data.bundles.length + 1).padStart(4,0)}`
     }
 
-
     var status = {"status": "new", "status_ts":Date.now()}
-    var bundleRegistationEntry = await newBundleObject(directoryObject, bundleDirectoryName, label, null, status, Date.now(), details, sarcatConfig)
+    var bundleRegistationEntry = await newBundleObject(bundleDirectoryName, label, null, status, Date.now(), details)
 
     bundleRegistry.data.bundles.push(bundleRegistationEntry)
     await bundleRegistry.write()
@@ -186,7 +184,7 @@ export async function manageBundleFiles(){
     var currentFiles = rawScanFileRegistry.data.files.filter(x=>workingBundle.data.rawFileHashes.includes(x.data.fileHash))
     var newFiles = rawScanFileRegistry.data.files.filter(x=>x.bundle == null)
     var options = []
-    console.log(`This bundle has ${currentFiles.length} files:`)
+
     var count = 1
     if(currentFiles.length > 0){
         await currentFiles.forEach(x=>{
@@ -197,6 +195,7 @@ export async function manageBundleFiles(){
         options.push({"name": `Add more files (${newFiles.length} more files available to add)`, value: {"add":true, "remove":false}})
     }
     if(currentFiles && currentFiles.length > 0){
+        console.log(`This bundle has ${chalk.yellowBright.bold(currentFiles.length)} files:`)
         options.push({"name": `Remove some files (${currentFiles.length} files currently in bundle)`, value: {"add":true, "removeSome":true}})
     }
 
@@ -207,7 +206,9 @@ export async function manageBundleFiles(){
         options.push({"name": "Parse existing files", value: {"addMore":false, "removeSome":false}})
         options.push(await sep())
     }
-
+    if((newFiles && newFiles.length==0) &&(currentFiles && currentFiles.length==0)){
+        console.log(chalk.red(`There are no regitered files to add to the bundle and no files added to the bundle to remove.`))
+    }
     if(options.length > 0){
         console.log(options)
 
@@ -327,7 +328,7 @@ async function removeFileFromBundle(){
 }
 
 export async function stageBundle(_SC_classObject){
-    directoryObject = _SC_classObject; bundleRegistry =_SC_classObject.bundleRegistry;rawScanFileRegistry = _SC_classObject.rawScanFileRegistry, sarcatConfig=_SC_classObject.configurationObject; updateRegistryEntry = _SC_classObject.updateRegistryEntry
+    directoryObject = _SC_classObject; bundleRegistry =_SC_classObject.bundleRegistry;rawScanFileRegistry = _SC_classObject.rawScanFileRegistry, sarcatConfig=_SC_classObject.sarcatConfig; updateRegistryEntry = _SC_classObject.updateRegistryEntry
     await bundleRegistry.read()
     await rawScanFileRegistry.read()
     workingBundle = await selectBundle()

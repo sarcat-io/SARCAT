@@ -29,7 +29,7 @@ if [ $gzCount2 != 0 ]; then
 fi
 rm -rf $cwd/../.tmp_dockerArchive
 sed -i '' '$d' run.sh
-fstat=$(ls -lh $cwd/\!SARCAT_ARCHIVE\!/.sarcat/dockerImages/sarcat_$ts.tar.gz | awk {'print $5'})
+fstat=$(ls -lh $cwd/__SARCAT_ARCHIVE/.sarcat/dockerImages/sarcat_$ts.tar.gz | awk {'print $5'})
 echo "Image size: $fstat"
 echo "docker run -it --mount type=bind,source=$cwd/__SARCAT_ARCHIVE,target=/sarcat_system/__SARCAT_ARCHIVE sarcat:$ts node start.mjs $cwd __SARCAT_ARCHIVE/sarcat_$ts.tar $imageHash" >> run.sh
 echo ""

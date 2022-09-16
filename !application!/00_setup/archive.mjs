@@ -17,10 +17,9 @@ await _tmp.loadJSON()
 const archiveTemplateRegistry = _tmp.archive.archive
 var directoryObject
 var archiveDirectory
-var configurationObject
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 export async function setupArchive(_sc){
-    directoryObject = _sc.directoryObject;configurationObject=_sc.configurationObject;archiveDirectory=directoryObject.archiveDirectory
+    directoryObject = _sc.directoryObject;archiveDirectory=directoryObject.archiveDirectory
     try {
         if(!existsSync(archiveDirectory)){
             console.log(`Creating SARCAT Archive Directory at ${archiveDirectory}`)

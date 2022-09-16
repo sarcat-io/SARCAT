@@ -68,6 +68,11 @@ export class _SC {
          */
     }
 
+    populateArchive = async() => {
+        this.setup = new _SC_00_setup(this)
+        return await this.setup.archive(this)
+    }
+
     bootstrap = async () => {
         archiveTemplate.filter(z=>z.type == 1).forEach(x => {
             this.configurationObject[x.label] = {"easy":`${x.easy}`,"directory":`${this.directoryObject.archiveDirectory}${x.dir}`,"data":x.data}
@@ -76,24 +81,22 @@ export class _SC {
             this[registry] = new Easy(this.configurationObject[registry].easy, this.configurationObject[registry].directory)
             await this.easyInit(this[registry], this.configurationObject[registry].data)
         }
-        await this.sarcatConfig.read()
-        this.setup = new _SC_00_setup(this)
-        this.bundle = new _SC_01_bundle(this)
-        this.filesParse = new _SC_20_filesParse(this)
+        
         this.crypto = new _SC_crypto(this)
-
+        return
     }
     runSetup = async()=>{
-        await this.setup.archive(this)
+        this.setup = new _SC_00_setup(this)
         await this.setup.config(this)
-        
     }
 
     runBundle = async () => {
+        this.bundle = new _SC_01_bundle(this)
         var res = await this.bundle.bundle(this)
     }
 
     runData = async () => {
+        this.filesParse = new _SC_20_filesParse(this)
         var res = await this.filesParse(workingBundle)
         // var rawFileRes = await this.stage.rawFiles(this.directoryObject, this.rawScanFileRegistry)
     }
