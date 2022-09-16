@@ -38,7 +38,3 @@ echo "   $cwd/__SARCAT_ARCHIVE/rawScanFiles"
 echo ""
 echo "Run this script to start SARCAT: ./run.sh"
 echo ""
-# //ver
-# //cat /proc/cpuinfo
-# //sysctl -a | grep machdep.cpu | awk -F':' '{ print $2 }'
-# uname -a
