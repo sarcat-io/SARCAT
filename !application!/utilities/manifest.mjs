@@ -66,7 +66,7 @@ async function finalizeManifest({targetFolderPath, data, writeFile}){
 }
 
 
-export async function baseManifest (configObject) {
+export async function baseManifest (configObject, rawScanFileRegistry) {
     var {targetFolderPath, writeFile} = configObject
     if(writeFile == null) {
         writeFile = false
@@ -74,21 +74,27 @@ export async function baseManifest (configObject) {
     var targetFolder = targetFolderPath.split('/').slice(-2).join('/')
     var fileDone = new EventEmitter
     var folderContents = await dirIt(targetFolderPath, false)
+    var alreadyRegistered = 0
     if(folderContents.length > 0){
         await folderContents.forEach(async (x)=> {
             x.targetFolder = x.path.split('/').pop()
-            var singleFile = new EventEmitter
             var stats = await fileStats(x)
-            fileData(x, singleFile)
-            singleFile.on('done', data => {
-                fileDone.emit('file',Object.assign({}, x, stats, data))
-            })
+            var current = rawScanFileRegistry.data.files.filter(y=>(x.name == y.name && x.path == y.path) && stats.size == y.data.size)
+            if(current.length == 0){
+                var singleFile = new EventEmitter
+                fileData(x, singleFile)
+                singleFile.on('done', data => {
+                    fileDone.emit('file',Object.assign({}, x, stats, data))
+                })
+            } else {
+                alreadyRegistered++
+            }
         })
         return new Promise ((resolve, reject) =>fileDone.on('file', async (data) => {
             delete data.data
             var finalObject = {uuid: v4(), create_ts: Date.now(), hash: await makeHash(Buffer.from(JSON.stringify(data))), name: data.name, targetFolder: data.targetFolder, path: data.path,data: data}
             g_manifestObjects.push(finalObject)
-            if(g_manifestObjects.length == folderContents.length){
+            if(g_manifestObjects.length + alreadyRegistered == folderContents.length){
                 resolve(await finalizeManifest({targetFolderPath: targetFolderPath, data:g_manifestObjects, writeFile: writeFile}))
             }
         }))
@@ -96,6 +102,8 @@ export async function baseManifest (configObject) {
         console.log(`No contents found in the container volume directory: ${chalk.inverse(targetFolder)}\nTo resolve this: On the host system that is running the SARCAT Container, copy files to this directory:\n${chalk.dim('-')}\n${chalk.yellowBright(`${process.argv[2]}/${targetFolder}`)}\n${chalk.dim('-')}\n${chalk.whiteBright.bold(`Make Note:  `)}${chalk.greenBright(`Re-run SARCAT once files are added to the directory above`)}\n${chalk.dim('-')}`)
         return null
     }
+    
+
     
 }
 

@@ -82,9 +82,9 @@ export async function stageRawFiles(_SC_classObject){
         directoryObject = _SC_classObject.directoryObject; bundleRegistry =_SC_classObject.bundleRegistry;rawScanFileRegistry = _SC_classObject.rawScanFileRegistry
         await bundleRegistry.read()
         await rawScanFileRegistry.read()
-        var newManifest = await baseManifest({targetFolderPath: directoryObject.rawScanFileDirectory, writeFile: false})
+        var newManifest = await baseManifest({targetFolderPath: directoryObject.rawScanFileDirectory, writeFile: false}, rawScanFileRegistry)
         if(!newManifest){
-            return null
+            return await registerNewFiles(postDupeCheckFiles, rawScanFileRegistry)
         } else {
             var newManifest_good = {data: await nullFileCheck(newManifest)}
             var postDupeCheckFiles = await checkDuplicates(newManifest_good)

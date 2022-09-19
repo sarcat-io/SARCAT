@@ -124,6 +124,7 @@ async function normalization(){
 
 
 async function __main__(runObj){
+    var resObj = {}
     /**
      * The main function preps the output directories for each subsequent functions exection
      * Although not linear, most functions will use the output of previous functions as data inputs
@@ -132,36 +133,44 @@ async function __main__(runObj){
      *      output directory path and filename
      * 
      */
+    try {
+        const {fileName, fileHash} = runObj
+        const fileLabel = fileName.slice(0, -7)
+        ///// 02-01
+        var parseOutputDirectory = runObj.outputDirectories.parsedRawDirectory
+        var parsedOutput = new Easy(`${fileHash}_parsed`,`${parseOutputDirectory}`)
+        await parsedOutput.read()
+        await parsedOutput.write()
+        var resObj = await parse(runObj, parsedOutput, parseOutputDirectory)
+        // console.log(resParse)
+        // ///// 02-02
+        var summaryObjectsDirectory = runObj.outputDirectories.summaryDirectory
+        var summaryOutput = new Easy(`${fileHash}_summary`,`${summaryObjectsDirectory}`)
+        await summaryOutput.read()
+        await summaryOutput.write()
+        resObj = await summaryObjects(runObj, summaryOutput, resObj, summaryObjectsDirectory)
+    
+        /// 02-03
+        var sarcatObjectsDirectory = runObj.outputDirectories.sarcatObjectsDirectory
+        var sarcatOutput = new Easy(`${fileHash}_sarcat`,`${sarcatObjectsDirectory}`)
+        await sarcatOutput.read()
+        await sarcatOutput.write()
+        resObj = await sarcatObjects(runObj, sarcatOutput, resObj, sarcatObjectsDirectory)
 
-    const {fileName, fileHash} = runObj
-    const fileLabel = fileName.slice(0, -7)
-    ///// 02-01
-    var parseOutputDirectory = runObj.outputDirectories.parsedRawDirectory
-    var parsedOutput = new Easy(`${fileHash}_parsed`,`${parseOutputDirectory}`)
-    await parsedOutput.read()
-    await parsedOutput.write()
-    var resObj = await parse(runObj, parsedOutput, parseOutputDirectory)
-    // console.log(resParse)
-    // ///// 02-02
-    var summaryObjectsDirectory = runObj.outputDirectories.summaryDirectory
-    var summaryOutput = new Easy(`${fileHash}_summary`,`${summaryObjectsDirectory}`)
-    await summaryOutput.read()
-    await summaryOutput.write()
-    resObj = await summaryObjects(runObj, summaryOutput, resObj, summaryObjectsDirectory)
-
-    /// 02-03
-    var sarcatObjectsDirectory = runObj.outputDirectories.sarcatObjectsDirectory
-    var sarcatOutput = new Easy(`${fileHash}_sarcat`,`${sarcatObjectsDirectory}`)
-    await sarcatOutput.read()
-    await sarcatOutput.write()
-    resObj = await sarcatObjects(runObj, sarcatOutput, resObj, sarcatObjectsDirectory)
-
-    ///// 02-04
-    var poamObjectsDirectory = runObj.outputDirectories.poamObjectsDirectory
-    var poamOutput = new Easy(`${fileHash}_poam`,`${runObj.outputDirectories.poamObjectsDirectory}`)
-    await poamOutput.read()
-    await poamOutput.write()
-    resObj = await __poam__(runObj, poamOutput, resObj, poamObjectsDirectory)
+        // resObj.parse_db = parsedOutput
+        // resObj.summary_db = summaryOutput
+        // resObj.sarcat_db = sarcatOutput
+    
+        ///// 02-04
+        var poamObjectsDirectory = runObj.outputDirectories.poamObjectsDirectory
+        var poamOutput = new Easy(`${fileHash}_poam`,`${runObj.outputDirectories.poamObjectsDirectory}`)
+        await poamOutput.read()
+        await poamOutput.write()
+        resObj = await poam(runObj, poamOutput, resObj, poamObjectsDirectory)
+    } catch(err){
+        console.error(err)
+    }
+    
 
 }
 

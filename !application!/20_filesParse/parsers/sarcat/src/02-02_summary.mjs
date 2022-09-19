@@ -28,7 +28,14 @@ export async function summaryObjects(runObj, _parseSummary, resObj, outputDirect
             hostVulnDict[y.name][z.severity].push(uniqStr)
             reportItems.push(uniqStr)
             if(detailPlugins.includes(z.pluginID)){
-                detailCapture[z.pluginID].push({host: y.name, output: z.plugin_output})
+                var tmpDetail = z.plugin_output.split('\n').map(y=> y.trim())
+                if(z.pluginID == 22869){
+                    tmpDetail = tmpDetail.slice(2)
+                } else if (z.pluginID == 110483){
+                    tmpDetail = tmpDetail.map(a=>a.split(' ').at(-2)+" "+a.split(' ').at(-1))
+
+                }
+                detailCapture[z.pluginID].push({host: y.name, output: tmpDetail})
             }
         }))
 

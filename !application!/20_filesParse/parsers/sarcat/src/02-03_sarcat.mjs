@@ -25,7 +25,8 @@ export const regularExpressions= [
 var genInfoPlugins = [45590,19506,11936,95928,90191,35351,45432, 25203,33276, 133964,22869,110483,55472,14272,25221]
 
 const tagInterest = [{"type":"identifier","values":["ip", "mac", "fqdn", "id","address", "host"]},{"type":"config", "values":["os", "operating", "kernel","image","ami"]},{"type": "cloud","values":["aws","vpc","ec2"]}]
-
+var globalCVE = []
+var globalPluginIds = []
 export async function sarcatObjects(runObj, sarcat_db, resObj, summaryOutput){
     var res = await processReport(resObj.parse_db.data, sarcat_db)
     resObj.sarcatRes = res
@@ -147,6 +148,7 @@ async function processHostReport(report){
         reportSummary.cve[sev] = [...new Set(reportSummary.cve[sev])]
         reportSummary.pluginID[sev] = [...new Set(pluginBySeverity[sev].map(x=>x.pluginID))]
     }
+
     var summary = {}
     summary.cve = Object.keys(cve_report).length
     summary.cve_unique_reports = 0
@@ -163,7 +165,16 @@ async function processHostReport(report){
         }
     })
     summary.cve_list = [...new Set(summary.cve_list)]
+    if(summary.cve_list.length > 0){
+        globalCVE.push(...summary.cve_list)
+        globalCVE = [... new Set(globalCVE)]
+    }
+
     summary.pluginIDs = [...new Set(report.map(x=>x.pluginID))]
+    if(summary.pluginIDs.length > 0){
+        globalPluginIds.push(...summary.pluginIDs)
+        globalPluginIds = [... new Set(globalPluginIds)]
+    }
     var genInfo = report.filter(x=>genInfoPlugins.includes(x.pluginID))
     var holder = []
     genInfo = genInfo.forEach(x=>{
@@ -177,7 +188,7 @@ async function processHostReport(report){
         cve_detail: CVE_SEVERITY_CVSS,
         // report_detail_by_severity: pluginBySeverity,
         host_information: hostInfo,
-        // general_information: holder
+        general_information: holder
     }
 }
 
@@ -187,28 +198,27 @@ async function parsePolicy(policy, sarcat_db){
     var serverPreferences = policy[0].Preferences[0].ServerPreferences[0].preference
     sarcat_db.data.assessment.serverPreferences = serverPreferences
     var spNames = serverPreferences.map(x=>x.name)
-    sarcat_db.data.assessment.preferenceNames = spNames
+    sarcat_db.data.assessment.preferenceNames = [... new Set(spNames)]
     var spPluginSet = serverPreferences.filter(x=>x.name=='plugin_set')[0].value.split(';')
-    sarcat_db.data.assessment.pluginSet = spPluginSet
+    sarcat_db.data.assessment.pluginSet = [... new Set(spPluginSet)]
     var spTarget = serverPreferences.filter(x=>x.name=='TARGET')[0].value.split(',')
-    sarcat_db.data.assessment.targets = spTarget
+    sarcat_db.data.assessment.targets = [... new Set(spTarget)]
     // var spAgentUUIDs = serverPreferences.filter(x=>x.name=='agent_uuids')[0].value.split(',')
-    // sarcat_db.data.assessment.agentUUIDS = spAgentUUIDs
+    // sarcat_db.data.assessment.agentUUIDS = [... new Set(spAgentUUIDs)]
     var pluginPreferences = policy[0].Preferences[0].PluginsPreferences[0].item
 
     var pluginIds = [...new Set(pluginPreferences.map(x=>x.pluginId))]
     sarcat_db.data.assessment.pluginIds = pluginIds 
-    // var pidall = []
-    // var pluginIdAll = [... new Set(sarcat_db.data.host.map(x=>x.report.host_report_summary.pluginIDs))].forEach(y=>{
-    //     pidall.push(...y)
-    // })
-    // pidall = [...new Set(pidall)]
-    // sarcat_db.data.assessment.pidall = pidall
-    // var delta = pidall.filter(x=>pluginIds.includes(x))
-    // sarcat_db.data.assessment.pidallDelta = delta
-    for(var key in sarcat_db.data.assessment){
-        console.log(key, String(sarcat_db.data.assessment[key]).length)
-    }
+    var pidall = []
+    var pluginIdAll = [... new Set(sarcat_db.data.host.map(x=>x.report.host_report_summary.pluginIDs))].forEach(y=>{
+        pidall.push(...y)
+    })
+    pidall = [...new Set(pidall)]
+    sarcat_db.data.assessment.allCVEs = globalCVE
+    sarcat_db.data.assessment.allPluginIDs = globalPluginIds
+    sarcat_db.data.assessment.pidall = pidall
+    var delta = pidall.filter(x=>pluginIds.includes(x))
+    sarcat_db.data.assessment.pluginIDallDelta = delta
     await sarcat_db.write()
     return
 }
