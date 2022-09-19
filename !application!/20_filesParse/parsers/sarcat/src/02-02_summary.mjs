@@ -2,98 +2,15 @@ import he from 'he'
 import parser from 'fast-xml-parser'
 import { Easy } from 'easy-lowdb'
 import {createReadStream, createWriteStream} from 'node:fs'
-/**
- * var numberSeverity = {
-    0: (count) => {console.log(`${'Info:')} ${count}`},
-    1: (count) => {console.log(`${'Low:')} ${count}`},
-    2: (count) => {console.log(`${'Moderate:')} ${count}`},
-    3: (count) => {console.log(`${'High:')} ${count}`},
-    4: (count) => {console.log(`${chalk.redBright.bold('Critical:')} ${count}`)}
-}
- */
-var xmlParserOptions = {
-    attributeNamePrefix: "",
-    textNodeName: "value",
-    ignoreAttributes: false,
-    ignoreNameSpace: false,
-    allowBooleanAttributes: false,
-    parseNodeValue: true,
-    parseAttributeValue: true,
-    trimValues: true,
-    cdataTagName: "__cdata", 
-    cdataPositionChar: "\\c",
-    parseTrueNumberOnly: false,
-    arrayMode: true, 
-    attrValueProcessor: (val, attrName) => he.decode(val, { isAttributeValue: true }),
-    tagValueProcessor: (val, tagName) => he.decode(val)
-}
-
 var detailPlugins = [110483, 22869, 95928]
 var detailCapture = {110483: [], 22869: [], 95928: []}
-var numberSeverity = {
-    0: 'Information',
-    1: 'Low',
-    2: 'Moderate',
-    3: 'High',
-    4: 'Critical'
-}
+export async function summaryObjects(runObj, _parseSummary, resObj, outputDirectory){
+    var res = ''
+    var {data, fileName, outputDirectories, fileHash} = runObj
+    var outputDirectory = outputDirectories.parsedRawDirectory
+    var scanParse_db = Object.assign({}, resObj.parse_db.data)
 
 
-export async function parse({fileName, data, outputDirectory}){
-    var parseSummary = {}
-    var _scanParse_db = new Easy(`${fileName.slice(0, -7)}_parsed`,`${outputDirectory}`)
-    await _scanParse_db.read()
-    if (parser.validate(data) === true) { 
-        var jsonObj = parser.parse(data, xmlParserOptions);
-        console.log('Parsing Filename:',fileName)
-        var scanParse_db = jsonObj.NessusClientData_v2[0]
-        var hostInfo = scanParse_db.Report.map(x=> x.ReportHost)[0].map(x=>x.name)
-        var hostInfoSet = new Set(hostInfo)
-        hostInfoSet = [...hostInfoSet]
-        var reportItems = []
-        await scanParse_db.Report.map(x=> x.ReportHost)[0].map(y=>y.ReportItem.forEach(z=> {
-            var uniqStr = `${z.severity}_${z.svc_name}_${z.pluginID}_${z.pluginName}`
-            reportItems.push(uniqStr)
-        }))
-        var reportItemsSet = new Set(reportItems)
-        reportItemsSet = [...reportItemsSet]
-        var sevDict={}
-        var sevCount={}
-        await reportItems.forEach(x=>{
-            var sev = Number(x.split('_')[0])
-            sevDict[sev]||=[]
-            sevDict[sev].push(x)
-        })
-        for(var sev in sevDict){
-            sevDict[sev] = [...new Set(sevDict[sev])]
-            sevCount[sev]= sevDict[sev].length
-        }
-
-        try {
-            _scanParse_db.data = Object.assign({},scanParse_db)
-            await _scanParse_db.write()
-        } catch(err){
-            console.log(err)
-        }
-
-        console.log(`Successfully created ${fileName.slice(0, -7)}_parsed.json (Raw .nessus XML -> Raw JSON)`)
-        console.log(`File ${fileName} output contains:`)
-        console.log(` -| Unique Hosts: ${hostInfoSet.length}`)
-        console.log(` -| Total Reports: ${reportItems.length} total reports`)
-        console.log(` -| Unique Vulns: ${reportItemsSet.length} unique reports`)
-        console.log(` -| Unique Vulns by Severity:`)
-        console.log(`SARCAT_SEPARATOR`)
-        for(var k of Object.keys(sevCount)){
-            console.log(`  |-   ${numberSeverity[k]}: ${sevCount[k]}`)
-        }
-        console.log(`SARCAT_OUT|${fileName.slice(0, -7)}_parsed.json|${outputDirectory}02-01_raw-scan-data|parsed`)
-
-
-    }
-    return
-}
-
-async function summary(scanParse_db){
     var parseSummary = {}
         var hostInfo = scanParse_db.Report.map(x=> x.ReportHost)[0].map(x=>x.name)
         var hostInfoSet = new Set(hostInfo)
@@ -171,7 +88,7 @@ async function summary(scanParse_db){
             similar = await recursiveShrink(similar)
         } while(similar.length > 0)
 
-        console.log(`Distinct Configuration Groups: ${final.length}`)
+        res += `Distinct Configuration Groups: ${final.length}\n`
         var totCOunt = 0
         var cmIssues=[]
         for(var group of final){
@@ -181,7 +98,7 @@ async function summary(scanParse_db){
             totCOunt+=group.length
         }
 
-        console.log(`Hosts with potential CM issues: ${cmIssues.length}`)
+        res +=`Hosts with potential CM issues: ${cmIssues.length}\n`
         var sevDict={}
         var sevCount={}
         await reportItems.forEach(x=>{
@@ -237,12 +154,15 @@ async function summary(scanParse_db){
             vulnHostDict: vulnHostDict
         }
 
-        var _parseSummary = new Easy(`${fileName.slice(0, -7)}_summary`,`${outputDirectory}`)
+
         await _parseSummary.read()
         _parseSummary.data = parseSummary[fileName]
         await _parseSummary.write()
-        console.log(`Successfully created ${fileName.slice(0, -7)}_summary.json (Raw JSON -> Raw Summary and Grouping)`)
-        console.log(`SARCAT_OUT|${fileName.slice(0, -7)}_summary.json|${outputDirectory}02-02_intermediate-objects|summary`)
+        res +=`Successfully created ${fileHash}_summary.json (Raw JSON -> Raw Summary and Grouping)\n`
+        res += `SARCAT_OUT|${fileHash}_summary.json|${outputDirectory}02-02_summary-objects|summary\n`
+        resObj.summaryRes = res
+        resObj.summary_db = _parseSummary
+        return resObj
 }
 async function prtty(){
     for(var fn in parseSummary){
@@ -259,24 +179,3 @@ async function prtty(){
         console.log(`${fn} results: ${JSON.stringify(parseSummary[fn])}`)
     }
 }
-
-
-
-async function loadData(runObj){
-    var {fileName, filePath, outputDirectory} = runObj
-    var dataArray = []
-    var dataStream = createReadStream(`${filePath}/${fileName}`)
-    dataStream.on('data', (data)=>{
-        dataArray.push(data)
-    })
-    dataStream.on('end',()=>{
-        runObj.data = Buffer.concat(dataArray).toString('utf-8')
-        parse(runObj)
-    })
-}
-
-var rawFilePath = process.argv[2].split('/')
-var rawfileName = rawFilePath.pop()
-rawFilePath = rawFilePath.join('/')
-var runObj = {fileName:rawfileName, filePath:rawFilePath, outputDirectory: process.argv[3]}
-loadData(runObj)

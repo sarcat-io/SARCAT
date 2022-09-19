@@ -33,14 +33,17 @@
     {"name": "02_assessment-data", "dir": "/", "type": 2},
     {"name": "assessment-data-manifest.json", "dir": "/02_assessment-data/", "type":1},
 
-    {"name": "02-01_raw-scan-data", "dir": "/02_assessment-data/", "type":2},
-    {"name": "raw-manifest.json", "dir": "/02_assessment-data/02-01_raw-scan-data/", "type":1},
+    {"name": "02-01_parsed-raw-data", "dir": "/02_assessment-data/", "type":2},
+    {"name": "raw-manifest.json", "dir": "/02_assessment-data/02-01_parsed-raw-data/", "type":1},
 
-    {"name": "02-02_intermediate-objects", "dir": "/02_assessment-data/", "type":2},
-    {"name": "intermediate-manifest.json", "dir": "/02_assessment-data/02-02_intermediate-objects/", "type":1},
+    {"name": "02-02_summary-objects", "dir": "/02_assessment-data/", "type":2},
+    {"name": "summary-manifest.json", "dir": "/02_assessment-data/02-02_summary-objects/", "type":1},
 
     {"name": "02-03_sarcat-objects", "dir": "/02_assessment-data/", "type":2},
     {"name": "sarcat-manifest.json", "dir": "/02_assessment-data/02-03_sarcat-objects/", "type":1},
+
+    {"name": "02-04_poam-objects", "dir": "/02_assessment-data/", "type":2},
+    {"name": "poam-manifest.json", "dir": "/02_assessment-data/02-04_poam-objects/", "type":1},
 
     {"name": "03_code", "dir": "/", "type": 2},
 

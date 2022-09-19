@@ -1,11 +1,11 @@
 import { Easy } from "easy-lowdb";
 import {normalize} from 'path'
 import { pid } from "process";
-// SARCAT/__SARCAT_ARCHIVE/bundles/SARCAT_bundle_0001/02_assessment-data/02-01_raw-scan-data/2022MAR_conMon_parsed.json
-const archiveDirectory = normalize(`${process.cwd()}/../../../../__SARCAT_ARCHIVE/bundles/SARCAT_bundle_0001/02_assessment-data/02-01_raw-scan-data`)
-var vuln = new Easy('2022MAR_conMon_parsed', archiveDirectory)
-var nessus = new Easy('nessus', archiveDirectory)
-await vuln.read()
+// SARCAT/__SARCAT_ARCHIVE/bundles/SARCAT_bundle_0001/02_assessment-data/02-01_parsed-raw-data/2022MAR_conMon_parsed.json
+// const archiveDirectory = normalize(`${process.cwd()}/../../../../__SARCAT_ARCHIVE/bundles/SARCAT_bundle_0001/02_assessment-data/02-01_parsed-raw-data`)
+// var vuln = new Easy('2022MAR_conMon_parsed', archiveDirectory)
+// var nessus = new Easy('nessus', archiveDirectory)
+// await vuln.read()
 export const regularExpressions= [
     {"type":"ip","exp": RegExp(/(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/gi)},
     {"type":"fqdn","exp": RegExp(/(?=^.{4,253}$)(^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63}$)/gi)},
@@ -178,6 +178,9 @@ async function processHostReport(report){
     }
 }
 
+export async function summary(){
+
+}
 async function parsePolicy(policy){
     await nessus.read()
     var serverPreferences = policy[0].Preferences[0].ServerPreferences[0].preference
@@ -195,6 +198,7 @@ async function parsePolicy(policy){
     var delta = pidall.filter(x=>pluginIds.includes(x))
     console.log(spAgentUUIDs.length)
 }
+
 async function processReport(report){
     // await nessus.read()
     // nessus.data.host||=[]
@@ -206,7 +210,7 @@ async function processReport(report){
     // })
     // await nessus.write()
     // console.log('done')
-    await parsePolicy(report.Policy)
+    // await parsePolicy(report.Policy)
     /**
      * Generate a scan event object with Unique IDs.
      * tag data with ids and bind the scan event with the raw scan files
@@ -221,4 +225,4 @@ async function processReport(report){
     // console.log(hostProperties)
 }
 
-processReport(vuln.data)
+// processReport(vuln.data)

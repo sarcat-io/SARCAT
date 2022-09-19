@@ -1,10 +1,33 @@
 import { Easy } from "easy-lowdb";
 import {normalize} from 'path'
-// SARCAT/__SARCAT_ARCHIVE/bundles/SARCAT_bundle_0001/02_assessment-data/02-01_raw-scan-data/2022MAR_conMon_parsed.json
-const archiveDirectory = normalize(`${process.cwd()}/../../../../__SARCAT_ARCHIVE/bundles/SARCAT_bundle_0001/02_assessment-data/02-01_raw-scan-data`)
+// SARCAT/__SARCAT_ARCHIVE/bundles/SARCAT_bundle_0001/02_assessment-data/02-01_parsed-raw-data/2022MAR_conMon_parsed.json
+const archiveDirectory = normalize(`${process.cwd()}/../../../../__SARCAT_ARCHIVE/bundles/SARCAT_bundle_0001/02_assessment-data/02-01_parsed-raw-data`)
 var vuln = new Easy('2022MAR_conMon_parsed', archiveDirectory)
 var vuln_keys = new Easy('vulnKeys', archiveDirectory)
-await vuln.read()
+// await vuln.read()
+
+export async function sarcatObjects(runObj, sarcat_db, resObj, summaryOutput){
+export async function poam(runObj, poam_db, resObj, poamOutput){
+    processReportHost(await resObj.parse_db.read())
+    //cve column if existing list, then persist list
+    //
+
+    // host.name
+    // host.properties.identifiers
+    // host.report
+    // host.report.summary_by_severity  report_detail_by_severity
+    // host.report.cve_report cve_detail
+    // host.report.general_information (config details)
+    
+    // existing findings -> update status
+    // prompt for deviations if new. (do this in analyze stage)
+
+    // asset inventory systems, software, containers, configs
+    
+    
+}
+
+
 export const regularExpressions= [
     {"type":"ip","exp": RegExp(/\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}↵(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b/gi)},
     {"type":"fqdn","exp": RegExp(/(?=^.{4,253}$)(^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63}$)/gi)},
@@ -67,7 +90,7 @@ async function hostProp(hp){
     }
     return hostDict
 }
-await vuln_keys.read()
+// await vuln_keys.read()
 
 var fieldList = ["severity","risk_factor","cve","cwe","plugin","port","svc_name","fname","stig_severity"]
 async function allKeys(report){
@@ -170,7 +193,7 @@ async function processReportHost(report){
             }
         }
     }
-    await vuln_keys.write()
+    // await vuln_keys.write()
     console.log('done')
 
     // var hostProperties = await hostProp(repHost.HostProperties)
@@ -178,4 +201,4 @@ async function processReportHost(report){
     // console.log(hostProperties)
 }
 
-processReportHost(vuln.data)
+// processReportHost(vuln.data)

@@ -98,8 +98,8 @@ export class _SC {
 
     runParse_20 = async (workingBundle) => {
         if(this.rawScanFileRegistry.data.files.length > 0){
-            this.parse = new _SC_20_filesParse(this)
-            return await this.parse.filesParse(workingBundle)
+            this.parse = new _SC_20_filesParse(this,workingBundle)
+            return await this.parse.runParseEngine()
         } else {
             return null
         }

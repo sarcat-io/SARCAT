@@ -170,7 +170,9 @@ async function loadParsers({parsers, bundleFiles, extensions, addEvidenceFiles2B
 //////////Raw Scan File processing
 //////////////////////////////////////////////////////////////////////////
 
-async function parseFiles(runObj,workingBundle){
+async function parseFiles(runObj,workingBundle, outDirs){
+    //check files statuz
+    // only in bundle should be parsed
     const sevSep = `  |-   `
     console.log(chalk.greenBright.bold('-----------------\nBegin Parsing\n-----------------'))
     var fileCounter = 1
@@ -183,9 +185,9 @@ async function parseFiles(runObj,workingBundle){
             console.log(`Extension: ${chalk.bold(ext)} (${extCounter++} of ${extensions.length}) | File: ${chalk.yellowBright(fileCounter++)} of ${scanFiles.length}`)
             parsedFileHashes.push(f.data.fileHash)
             var ts = Date.now()
-            console.log()
-            var cmd = `${parserEngine[ext][0].cmd} ${normalize(`${f.path}/${f.name}`)} ${bundleDirectory}/02_assessment-data/02-01_raw-scan-data/`
+            var cmd = `${parserEngine[ext][0].cmd} ${normalize(`${f.path}/${f.name}`)} ${f.data.fileHash} ${JSON.stringify(outDirs)}`
             var res = execSync(cmd).toString()
+
             res = res.split('\n')
             var lines = res.filter(x=>x.indexOf('SARCAT_OUT') == 0)
             var splitter = res.indexOf('SARCAT_SEPARATOR')
@@ -216,8 +218,8 @@ async function parseFiles(runObj,workingBundle){
             f.data.journal.push(fileAction)
             f.data.journal.push(status)
             f.modified_ts = ts
-            f.hash = await makeHash(Buffer.from(JSON.stringify(f.data)))
-            await updateRegistryEntry(f, rawScanFileRegistry)
+            // f.hash = await makeHash(Buffer.from(JSON.stringify(f.data)))
+            // await updateRegistryEntry(f, rawScanFileRegistry)
 
             // await updateRegistryEntry(f,rawScanFileRegistry)// complete db with read write
         }
@@ -234,13 +236,13 @@ async function parseFiles(runObj,workingBundle){
             hashObj.bundleUUID = workingBundle.uuid
             f.data.auditTrail.push(hashObj)
             var fileAction = {"action": "added as evidence", "action_ts": ts}
-            var status = {"status": "in bundle", "status_ts": ts}
+            var status = {"status": "in_bundle", "status_ts": ts}
             f.currentStatus = status
             f.data.journal.push(fileAction)
             f.data.journal.push(status)
             f.modified_ts = ts
             f.hash = await makeHash(Buffer.from(JSON.stringify(f.data)))
-            updateRegistryEntry(f, rawScanFileRegistry)
+            // updateRegistryEntry(f, rawScanFileRegistry)
         }
     }
     var ts = Date.now()
@@ -249,17 +251,15 @@ async function parseFiles(runObj,workingBundle){
     workingBundle.data.journal.push(bundleAction)
     workingBundle.data.parsedFileHashes = parsedFileHashes
     workingBundle.hash = await makeHash(Buffer.from(JSON.stringify(workingBundle.data)))
-    await updateRegistryEntry(workingBundle, bundleRegistry)
+    // await updateRegistryEntry(workingBundle, bundleRegistry)
     return workingBundle
 }
 //////////////////////////////////////////////////////////////////////////
 //////////This Module Entry Point
 //////////////////////////////////////////////////////////////////////////
 
-export default async function (_SC_classObject,workingBundle_){
-    workingBundle = workingBundle_
-    var rawOutputDir = `${workingBundle.path}/02_assessment-data/02-01_raw-scan-data/`
-    var summaryOutputDir = `${workingBundle.path}/02_assessment-data/02-02_intermediate-objects/`
+export default async function (_SC_classObject){
+    workingBundle = _SC_classObject.workingBundle
     directoryObject = _SC_classObject; bundleRegistry =_SC_classObject.bundleRegistry;rawScanFileRegistry = _SC_classObject.rawScanFileRegistry, sarcatConfig=_SC_classObject.sarcatConfig; updateRegistryEntry = _SC_classObject.updateRegistryEntry; archiveDirectory=directoryObject.archiveDirectory
     await rawScanFileRegistry.read()
     await bundleRegistry.read()
@@ -267,7 +267,15 @@ export default async function (_SC_classObject,workingBundle_){
     var parseObject = await getParsers()
     parseObject.bundleDirectory = workingBundle.path
     // loadParsers({parsers:parsers, rawScanFiles: rawScanFiles, extensions: parserExtensions})
-    return await parseFiles(parseObject,workingBundle)
+    var outDirs = (bDir) => {
+        return {
+            "parsedRawDirectory":`${bDir}/02_assessment-data/02-01_parsed-raw-data/`,
+            "summaryDirectory":`${bDir}/02_assessment-data/02-02_summary-objects/`,
+            "sarcatObjectsDirectory":`${bDir}/02_assessment-data/02-03_sarcat-objects/`,
+            "poamObjectsDirectory":`${bDir}/02_assessment-data/02-04_poam-objects/`
+        }
+    }
+    return await parseFiles(parseObject, workingBundle, outDirs(workingBundle.path))
     
     //log activity output to activityLog
     // check that all files are parsed and update bundle status before running normalize

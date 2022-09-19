@@ -10,6 +10,7 @@ import { Easy } from 'easy-lowdb'
 import prompt,{sep} from '../utilities/promptUser.mjs'
 import chalk from 'chalk'
 import { _SC_crypto } from '../utilities/crypto_class.mjs'
+// import { files } from 'jszip'
 const makeHash = new _SC_crypto().makeHash
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -18,6 +19,7 @@ var logObj = {module:moduleRelPath, function:'N/A'}
 const archiveDirectory = normalize(`${process.cwd()}/../__SARCAT_ARCHIVE`)
 /////// Preparing module global variables assigned from _SC / SARCAT_CLASS
 var directoryObject; var newFiles; var bundleRegistry; var rawScanFileRegistry; var sarcatConfig; var workingBundle; var updateRegistryEntry
+
 
 const monthList = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
 //////////
@@ -186,6 +188,7 @@ async function newBundle(){
 }
 
 export async function manageBundleFiles(){
+    // (check status of current files. allow selection of current files to parse or re-parse)
     await rawScanFileRegistry.read()
 
     var currentFiles = rawScanFileRegistry.data.files.filter(x=>workingBundle.data.rawFileHashes.includes(x.data.fileHash))
@@ -193,9 +196,16 @@ export async function manageBundleFiles(){
     var options = []
 
     var count = 1
+    var parsedCount = []
+    var toParse = []
     if(currentFiles.length > 0){
         await currentFiles.forEach(x=>{
             console.log(`${count}) ${`${x.name} in -> .${x.path.split(`__SARCAT_ARCHIVE`)[1]}/`}`)
+            if(x.currentStatus.status != 'New' || x.currentStatus.status != 'in_bundle'  ){
+                parsedCount.push(x)
+            } else {
+                toParse.push(x)
+            }
         })
     }
     if(newFiles && newFiles.length>0){
@@ -210,7 +220,7 @@ export async function manageBundleFiles(){
         options.push(await sep())
         options.push({"name": "Add and remove files", value: {"addMore":true, "removeSome":true}})
 
-        options.push({"name": "Parse existing files", value: {"addMore":false, "removeSome":false}})
+        options.push({"name": "Parse existing files", value: {"addMore":false, "removeSome":false, "toParse": toParse, "parsed": parsedCount}})
         options.push(await sep())
     }
     if((newFiles && newFiles.length==0) &&(currentFiles && currentFiles.length==0)){
@@ -357,6 +367,7 @@ export async function stageBundle(_SC_classObject){
         if(remove == true){
             workingBundle = await removeFileFromBundle()
         }
+        workingBundle._tmp = {toParse: moreQuestion.toParse, parsed: moreQuestion.parsed}
     }       
 
 

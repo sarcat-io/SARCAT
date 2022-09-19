@@ -34,12 +34,16 @@
         {
           "name": "he",
           "version": "1.2.0"
+        },
+        {
+          "name": "easy-lowdb",
+          "version": "1.1.1"
         }
       ],
       "packageManagerCommand": "npm i",
       "runCommand": {
         "shellExecutable": "node",
-        "fileName": "nessus.mjs",
+        "fileName": "index.mjs",
         "relativeDirectoryPath": "./"
       },
       "outputToConsole": false,

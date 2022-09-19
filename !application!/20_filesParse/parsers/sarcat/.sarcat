@@ -13,9 +13,9 @@
     "fileExtensions": ["nessus"],
     "language":{"nodejs": "v18.8.0"},
     "run": {"method":"shell","function":null},
-    "dependencies": [{"name":"fast-xml-parser","version": "3.19.0"},{"name":"he", "version":"1.2.0"}],
+    "dependencies": [{"name":"fast-xml-parser","version": "3.19.0"},{"name":"he", "version":"1.2.0"},{"name":"easy-lowdb", "version":"1.1.1"}],
     "packageManagerCommand": "npm i",
-    "runCommand": {"shellExecutable": "node", "fileName":"nessus.mjs", "relativeDirectoryPath": "./"},
+    "runCommand": {"shellExecutable": "node", "fileName":"index.mjs", "relativeDirectoryPath": "./"},
     "outputToConsole": false,
     "isPkg": false,
     "Dockerfile": [
