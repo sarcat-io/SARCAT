@@ -46,14 +46,21 @@
         "fileName": "index.mjs",
         "relativeDirectoryPath": "./"
       },
+      "dockerBuild": {
+        "comment": "exec to build on host and then run.",
+        "shellExecutable": "docker",
+        "fileName": "",
+        "relativeDirectoryPath": ""
+      },
+      "dockerRun": "docker run -it --mount type=bind,source=/Users/brianthompson/Code/SARCAT/SARCAT/__SARCAT_ARCHIVE,target=/sarcat_system/__SARCAT_ARCHIVE sarcat:1663369058 node start.mjs /Users/brianthompson/Code/SARCAT/SARCAT __SARCAT_ARCHIVE/sarcat_1663369058.tar sha256:3b62cacb3c7f96d6f59a12b6f9cc389a94cb9b3eeb78e17833a48f71eadc876e",
       "outputToConsole": false,
       "isPkg": false,
       "Dockerfile": [
         "FROM node:lts-alpine",
         "LABEL sarcat=true",
         "LABEL sarcat_type=parser",
-        "VOLUME ['/sarcat_system']",
-        "WORKDIR /sarcat_system",
+        "VOLUME ['/parser']",
+        "WORKDIR /parser",
         "RUN apk",
         "COPY . .",
         "WORKDIR /sarcat_system/!application!",

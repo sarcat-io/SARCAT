@@ -27,9 +27,12 @@ var genInfoPlugins = [45590,19506,11936,95928,90191,35351,45432, 25203,33276, 13
 const tagInterest = [{"type":"identifier","values":["ip", "mac", "fqdn", "id","address", "host"]},{"type":"config", "values":["os", "operating", "kernel","image","ami"]},{"type": "cloud","values":["aws","vpc","ec2"]}]
 var globalCVE = []
 var globalPluginIds = []
-export async function sarcatObjects(runObj, sarcat_db, resObj, summaryOutput){
+var data; var fileName; var outputDirectories; var fileHash; var outputDirectory; var resObj
+export async function sarcatObjects(runObj, sarcat_db, resObj, outputDirectory){
+    data = runObj.data; fileName = runObj.fileName, outputDirectories = runObj.outputDirectories; fileHash = runObj.fileHash; outputDirectory = outputDirectory
     var res = await processReport(resObj.parse_db.data, sarcat_db)
-    resObj.sarcatRes = res
+    res +=`Successfully created ${fileHash}_sarcat.json (Processes JSON -> Informative Data Objects\n`
+    resObj.sarcatRes = `SARCAT_OUT|${fileHash}_sarcat.json|${outputDirectory}|sarcat\n`
     resObj.sarcat_db = sarcat_db
     return resObj
 }
@@ -235,8 +238,11 @@ async function processReport(report, sarcat_db){
 
     })
     await sarcat_db.write()
-    console.log('done report')
+    
     await parsePolicy(report.Policy, sarcat_db)
+
+
+
     return true
     /**
      * Generate a scan event object with Unique IDs.

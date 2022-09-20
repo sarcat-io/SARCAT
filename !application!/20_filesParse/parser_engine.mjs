@@ -98,7 +98,7 @@ async function getParsers(){
     var extSet = new Set()
     var parsers = {}
     await registerParsers()
-    var bundleFiles = rawScanFiles.filter(x=>bundleFileHashes.includes(x.data.fileHash))
+    var bundleFiles = rawScanFiles.filter(x=>bundleFileHashes.includes(x.data.fileHash) && x.currentStatus.status == 'in_bundle')
     bundleFiles.map(x=>x.extension).forEach(x=>extSet.add(x))
     extSet = [...extSet]
     for(var ext of extSet){
@@ -154,6 +154,8 @@ async function loadParsers({parsers, bundleFiles, extensions, addEvidenceFiles2B
             if(parsers[ext][i].run.method == "shell"){
                 parsers[ext][i].cmd = `${parsers[ext][i].runCommand.shellExecutable} ${parsers[ext][i].modulePath}/${parsers[ext][i].runCommand.relativeDirectoryPath}${parsers[ext][i].runCommand.fileName}`
                 parserEngine[ext][i] = parsers[ext][i]
+            } else if(parsers[ext][i].run.method == "docker") {
+
             } else if(parsers[ext][i].run == "import"){
                 // parserEngine[ext][i] = `${parsers[ext][i].shellExecutable} ${parsers[ext][i].modulePath}${parsers[ext][i].relativeDirectoryPath}${parsers[ext][i].fileName}`
             } else {
@@ -174,11 +176,17 @@ async function parseFiles(runObj,workingBundle, outDirs){
     //check files statuz
     // only in bundle should be parsed
     const sevSep = `  |-   `
-    console.log(chalk.greenBright.bold('-----------------\nBegin Parsing\n-----------------'))
+
     var fileCounter = 1
     var extCounter = 1
     var {parserEngine, bundleFiles, extensions, bundleDirectory, addEvidenceFiles2Bundle} = runObj
     var parsedFileHashes = []
+    if(extensions.length > 0){
+        console.log(chalk.greenBright.bold('-----------------\nBegin Parsing\n-----------------'))
+    } else {
+        console.log(chalk.redBright.bold('-----------------\nPausing\n-----------------'))
+        console.log(`All existing files in bundle have already been parsed`)
+    }
     for(var ext of extensions){
         var scanFiles = bundleFiles.filter(x=>x.extension == ext)
         for(var f of scanFiles){
@@ -187,7 +195,6 @@ async function parseFiles(runObj,workingBundle, outDirs){
             var ts = Date.now()
             var cmd = `${parserEngine[ext][0].cmd} ${normalize(`${f.path}/${f.name}`)} ${f.data.fileHash} ${JSON.stringify(outDirs)}`
             var res = execSync(cmd).toString()
-
             res = res.split('\n')
             var lines = res.filter(x=>x.indexOf('SARCAT_OUT') == 0)
             var splitter = res.indexOf('SARCAT_SEPARATOR')
@@ -218,13 +225,13 @@ async function parseFiles(runObj,workingBundle, outDirs){
             f.data.journal.push(fileAction)
             f.data.journal.push(status)
             f.modified_ts = ts
-            // f.hash = await makeHash(Buffer.from(JSON.stringify(f.data)))
-            // await updateRegistryEntry(f, rawScanFileRegistry)
+            f.hash = await makeHash(Buffer.from(JSON.stringify(f.data)))
+            await updateRegistryEntry(f, rawScanFileRegistry)
 
-            // await updateRegistryEntry(f,rawScanFileRegistry)// complete db with read write
+            await updateRegistryEntry(f,rawScanFileRegistry)// complete db with read write
         }
         
-        // await updateRegistryEntry(workingBundle, bundleRegistry)
+        await updateRegistryEntry(workingBundle, bundleRegistry)
     }
     var ts = Date.now()
     if(addEvidenceFiles2Bundle.length > 0){
@@ -242,7 +249,7 @@ async function parseFiles(runObj,workingBundle, outDirs){
             f.data.journal.push(status)
             f.modified_ts = ts
             f.hash = await makeHash(Buffer.from(JSON.stringify(f.data)))
-            // updateRegistryEntry(f, rawScanFileRegistry)
+            updateRegistryEntry(f, rawScanFileRegistry)
         }
     }
     var ts = Date.now()
@@ -251,7 +258,7 @@ async function parseFiles(runObj,workingBundle, outDirs){
     workingBundle.data.journal.push(bundleAction)
     workingBundle.data.parsedFileHashes = parsedFileHashes
     workingBundle.hash = await makeHash(Buffer.from(JSON.stringify(workingBundle.data)))
-    // await updateRegistryEntry(workingBundle, bundleRegistry)
+    await updateRegistryEntry(workingBundle, bundleRegistry)
     return workingBundle
 }
 //////////////////////////////////////////////////////////////////////////

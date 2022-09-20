@@ -223,7 +223,7 @@ export async function summaryObjects(runObj, _parseSummary, resObj, outputDirect
         _parseSummary.data = parseSummary[fileName]
         await _parseSummary.write()
         res +=`Successfully created ${fileHash}_summary.json (Raw JSON -> Raw Summary and Grouping)\n`
-        res += `SARCAT_OUT|${fileHash}_summary.json|${outputDirectory}02-02_summary-objects|summary\n`
+        res += `SARCAT_OUT|${fileHash}_summary.json|${outputDirectory}|summary\n`
         resObj.summaryRes = res
         resObj.summary_db = _parseSummary
         return resObj

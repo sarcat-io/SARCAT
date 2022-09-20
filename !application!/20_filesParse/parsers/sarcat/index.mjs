@@ -32,7 +32,6 @@ import {poam} from './src/02-04_poam.mjs'
 
 
 async function __parse__(runObj,parsedOutput){
-    console.log('Parse')
 /////
 ///// 1st stage. Function to convert from raw/proprietary data format, to JSON
 /////
@@ -46,7 +45,7 @@ async function __parse__(runObj,parsedOutput){
 }
 
 async function __summary__(runIbj, parseOutput, summaryOutput){
-    console.log('Summary')
+
 
 /////
 ///// 2nd stage. Function to extract summary information from 1st stage JSON. Summary Objects include cursory POAM objects.
@@ -66,7 +65,6 @@ async function __summary__(runIbj, parseOutput, summaryOutput){
  *          
  *          
  */
- return await summary(runObj, parseOutput, summaryOutput)
 //  console.log(parseRes)
 
 
@@ -167,6 +165,9 @@ async function __main__(runObj){
         await poamOutput.read()
         await poamOutput.write()
         resObj = await poam(runObj, poamOutput, resObj, poamObjectsDirectory)
+        var {parseRes, summaryRes, sarcatRes, poamRes} = resObj
+
+        console.log(parseRes, summaryRes, sarcatRes, poamRes)
     } catch(err){
         console.error(err)
     }

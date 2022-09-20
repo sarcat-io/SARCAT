@@ -1,18 +1,19 @@
 import { Easy } from "easy-lowdb";
 import {normalize} from 'path'
-// SARCAT/__SARCAT_ARCHIVE/bundles/SARCAT_bundle_0001/02_assessment-data/02-01_parsed-raw-data/2022MAR_conMon_parsed.json
-const archiveDirectory = normalize(`${process.cwd()}/../../../../__SARCAT_ARCHIVE/bundles/SARCAT_bundle_0001/02_assessment-data/02-01_parsed-raw-data`)
-var vuln = new Easy('2022MAR_conMon_parsed', archiveDirectory)
-var vuln_keys = new Easy('vulnKeys', archiveDirectory)
-// await vuln.read()
-
-// export async function sarcatObjects(runObj, sarcat_db, resObj, summaryOutput){
+import { readFileSync } from "node:fs";
+import {_SC_utilities} from '../../../../utilities/index_utilities.mjs'
+import { writeFileSync } from "node:fs";
+//https://cve.mitre.org/data/downloads/allitems.csv.gz
+// summary vulnReference is POAM
+async function getCVE(year){
+    var cve_db = new Easy(`CVE-${year}`,normalize(`${process.cwd()}/../commonData/cve_data/`))
+    return cve_db.read()
+}
+var data; var fileName; var outputDirectories; var fileHash; var outputDirectory; var resObj
 export async function poam(runObj, poam_db, resObj, poamOutput){
-    // processReportHost(await resObj.parse_db.read())
-    //cve column if existing list, then persist list
-    //
-    var allHostnames =  resObj.sarcat_db.data.host.map(x=> x.name)
-    var vulnDict = {}
+    data = runObj.data; fileName = runObj.fileName, outputDirectories = runObj.outputDirectories; fileHash = runObj.fileHash; outputDirectory = poamOutput
+    const utils = new _SC_utilities()
+    var cveDict = {}
     resObj.sarcat_db.data.assessment.allCVEs.forEach(x=>{
         vulnDict[x] = resObj.sarcat_db.data.host.filter(y=>y.report.host_report_summary.cve_list.includes(x)).map(z=>z.name)
     })
@@ -84,7 +85,14 @@ export async function poam(runObj, poam_db, resObj, poamOutput){
     // //hostname IP mappin// connection inventory?
     //     // include service name and port
     // await poam_db.write()
-    return
+    var res =''
+    res +=`Successfully created ${fileHash}_poam.json (Processed Data -> POAM Output Objects\n`
+    resObj.poamRes = res + `SARCAT_OUT|${fileHash}_poam.json|${outputDirectory}|poam\n`
+
+    resObj.poam_db = poam_db
+
+
+    return resObj
     // By pluginID
     // by CVE => resObj.sarcat_db.data.assessment.allCVEs
 

@@ -196,15 +196,15 @@ export async function manageBundleFiles(){
     var options = []
 
     var count = 1
-    var parsedCount = []
+    var parsedFiles = []
     var toParse = []
     if(currentFiles.length > 0){
         await currentFiles.forEach(x=>{
             console.log(`${count}) ${`${x.name} in -> .${x.path.split(`__SARCAT_ARCHIVE`)[1]}/`}`)
             if(x.currentStatus.status != 'New' || x.currentStatus.status != 'in_bundle'  ){
-                parsedCount.push(x)
+                parsedFiles.push(x.uuid)
             } else {
-                toParse.push(x)
+                toParse.push(x.uuid)
             }
         })
     }
@@ -220,7 +220,7 @@ export async function manageBundleFiles(){
         options.push(await sep())
         options.push({"name": "Add and remove files", value: {"addMore":true, "removeSome":true}})
 
-        options.push({"name": "Parse existing files", value: {"addMore":false, "removeSome":false, "toParse": toParse, "parsed": parsedCount}})
+        options.push({"name": "Parse existing files", value: {"addMore":false, "removeSome":false, "toParse": toParse, "parsed": parsedFiles}})
         options.push(await sep())
     }
     if((newFiles && newFiles.length==0) &&(currentFiles && currentFiles.length==0)){
@@ -367,8 +367,8 @@ export async function stageBundle(_SC_classObject){
         if(remove == true){
             workingBundle = await removeFileFromBundle()
         }
-        workingBundle._tmp = {toParse: moreQuestion.toParse, parsed: moreQuestion.parsed}
-    }       
+        workingBundle.parsingStage = {toParse: moreQuestion.toParse, parsed: moreQuestion.parsed}
+    } 
 
 
     return workingBundle
