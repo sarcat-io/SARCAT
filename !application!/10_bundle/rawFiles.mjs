@@ -88,7 +88,12 @@ export async function stageRawFiles(_SC_classObject){
         } else {
             var newManifest_good = {data: await nullFileCheck(newManifest)}
             var postDupeCheckFiles = await checkDuplicates(newManifest_good)
-            return await registerNewFiles(postDupeCheckFiles, rawScanFileRegistry) // <- returns all registered files in new status
+            if(postDupeCheckFiles.length > 0){
+                return await registerNewFiles(postDupeCheckFiles, rawScanFileRegistry) // <- returns all registered files in new status
+            } else {
+                return null
+            }
+            
         }
     } catch (err){
         console.log(err)
