@@ -194,6 +194,7 @@ async function parseFiles(runObj,workingBundle, outDirs){
             parsedFileHashes.push(f.data.fileHash)
             var ts = Date.now()
             var fp = normalize(`${f.path}/${f.name}`).replaceAll(' ', '\ ')
+            console.log(fp)
             var cmd = `${parserEngine[ext][0].cmd} ${fp} ${f.data.fileHash} ${JSON.stringify(outDirs)}`
             var res = execSync(cmd).toString()
             res = res.split('\n')
