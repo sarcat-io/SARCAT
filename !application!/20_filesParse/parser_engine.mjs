@@ -193,7 +193,8 @@ async function parseFiles(runObj,workingBundle, outDirs){
             console.log(`Extension: ${chalk.bold(ext)} (${extCounter++} of ${extensions.length}) | File: ${chalk.yellowBright(fileCounter++)} of ${scanFiles.length}`)
             parsedFileHashes.push(f.data.fileHash)
             var ts = Date.now()
-            var cmd = `${parserEngine[ext][0].cmd} ${normalize(`"${f.path}/${f.name}"`)} ${f.data.fileHash} ${JSON.stringify(outDirs)}`
+            var fp = normalize(`${f.path}/${f.name}`).replaceAll(' ', '\ ')
+            var cmd = `${parserEngine[ext][0].cmd} ${fp} ${f.data.fileHash} ${JSON.stringify(outDirs)}`
             var res = execSync(cmd).toString()
             res = res.split('\n')
             var lines = res.filter(x=>x.indexOf('SARCAT_OUT') == 0)
