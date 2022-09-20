@@ -99,7 +99,7 @@ export async function baseManifest (configObject, rawScanFileRegistry) {
             }
         }))
     } else {
-        console.log(`No contents found in the container volume directory: ${chalk.inverse(targetFolder)}\nTo resolve this: On the host system that is running the SARCAT Container, copy files to this directory:\n${chalk.dim('-')}\n${chalk.yellowBright(`${process.argv[2]}/${targetFolder}`)}\n${chalk.dim('-')}\n${chalk.whiteBright.bold(`Make Note:  `)}${chalk.greenBright(`Re-run SARCAT once files are added to the directory above`)}\n${chalk.dim('-')}`)
+        console.log(`${chalk.redBright.bold('No contents found')} in the container volume directory: ${chalk.yellow(targetFolder)}\nTo resolve this: On the host system that is running the SARCAT Container, copy files to this directory:\n${chalk.dim('-')}\n${chalk.yellowBright(`${process.argv[2]}/${targetFolder}`)}\n${chalk.dim('-')}\n${chalk.whiteBright.bold(`Make Note:  `)}${chalk.greenBright(`Re-run SARCAT once files are added to the directory above`)}\n${chalk.dim('-')}`)
         return null
     }
     
