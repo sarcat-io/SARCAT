@@ -230,7 +230,9 @@ async function processReport(report, sarcat_db){
         var hostObject = {name: repHost.name}
         hostObject.properties = await hostProp(repHost.HostProperties)
         hostObject.report = await processHostReport(repHost.ReportItem)
+        // hostObject.containers = await containers(repHost.ReportItem.filter(a => a.pluginID = '110483').map(y => y.plugin_output))
         sarcat_db.data.host.push(hostObject)
+
     })
     await sarcat_db.write()
     console.log('done report')
@@ -245,6 +247,59 @@ async function processReport(report, sarcat_db){
      * deltas (plugins and hosts didnt respond)
      * 
      */
+}
+
+async function containers(repDocker){
+    var hostContainers = {
+        imageIdList: new Set(),
+        shaList: new Set()
+    }
+    // repDocker = repDocker.filter(a => a.pluginID = '110483').map(y => y.plugin_output)
+    var systemImageIds = []
+    if (repDocker.length > 0){
+        // for (var line of repDocker){
+        //     if (line){
+        //         try {
+        //             line = line.split('\n')
+        //             for (var i=0;i<line.length;i++){
+        //                 var lIndex = line[i].indexOf('Image ID :')
+        //                 if (lIndex >-1){
+        //                     var shaId = line[i].split(' : ')
+        //                     var imageId = line[i+2].split(/\s{1,}/)
+        //                     systemImageIds[imageId[1]] = shaId[1]
+        //                     shaList.add(shaId[1])
+        //                 }
+        //             }
+        //         } catch (err) {
+        //             console.error(err)
+        //         }
+        //     }
+        // }
+        // for (var line of repDocker){
+        //     if (line){
+        //         line = line.split('\n')
+        //         for (var i=0;i<line.length;i++){
+        //             var lIndex2 = line[i].indexOf('docker-containerd')
+        //             if (lIndex2 >-1){
+        //                 if(!line[i].includes('unix:///')){
+        //                     var imageId = line[i].split(/\s{1,}/)
+        //                     var lindex3 = imageId.indexOf('docker-containerd-shim')
+        //                     imageId = imageId[lindex3+1]
+        //                     if(!systemImageIds[imageId]){
+        //                     } else {
+        //                         hostContainers.imageIdList.add(imageId)
+        //                         hostContainers.shaList.add(systemImageIds[imageId])
+        //                     }
+        //                 }
+        //             }
+        //         }
+
+        //     }
+        // }
+        hostContainers.imageIdList = [...hostContainers.imageIdList]
+        hostContainers.imageIdList = [...hostContainers.shaList]
+        return hostContainers
+    }
 }
 
 

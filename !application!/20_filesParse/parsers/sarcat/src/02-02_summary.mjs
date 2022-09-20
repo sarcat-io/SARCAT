@@ -2,8 +2,11 @@ import he from 'he'
 import parser from 'fast-xml-parser'
 import { Easy } from 'easy-lowdb'
 import {createReadStream, createWriteStream} from 'node:fs'
+import { _SC_templates } from '../../../../../templates/index_templates.mjs'
 var detailPlugins = [110483, 22869, 95928]
 var detailCapture = {110483: [], 22869: [], 95928: []}
+var shaList = new Set()
+var systemImageIds = {}
 export async function summaryObjects(runObj, _parseSummary, resObj, outputDirectory){
     var res = ''
     var {data, fileName, outputDirectories, fileHash} = runObj
@@ -18,6 +21,9 @@ export async function summaryObjects(runObj, _parseSummary, resObj, outputDirect
         var reportItems = []
         var hostVulnDict = {}
         var vulnHostDict = {}
+        var vulnReference = {}
+        var hostContainers = {}
+        var allContainers = new Set()
         await scanParse_db.Report.map(x=> x.ReportHost)[0].map(y=>y.ReportItem.forEach(z=> {
             var uniqStr = `${z.severity}_${z.svc_name}_${z.pluginID}_${z.pluginName}`
             vulnHostDict[z.severity]||={}
@@ -26,12 +32,60 @@ export async function summaryObjects(runObj, _parseSummary, resObj, outputDirect
             hostVulnDict[y.name]||={}
             hostVulnDict[y.name][z.severity]||=[]
             hostVulnDict[y.name][z.severity].push(uniqStr)
+
+            // ||={shaList: [],systemImageIds: [], imageIdList: []}
             reportItems.push(uniqStr)
             if(detailPlugins.includes(z.pluginID)){
                 var tmpDetail = z.plugin_output.split('\n').map(y=> y.trim())
                 if(z.pluginID == 22869){
                     tmpDetail = tmpDetail.slice(2)
                 } else if (z.pluginID == 110483){
+                    var imageId = tmpDetail.filter(x=>x.indexOf('Image ID') > -1)
+                    var containerD =  tmpDetail.filter(x=>x.indexOf('docker-containerd')>-1)
+                    if(containerD.length == 0 && imageId.length == 0){
+                    } else {
+                        hostContainers[y.name]||={}
+                        if(imageId.length > 0){
+                            hostContainers[y.name].imageId = imageId
+                            // for(var i=0;i<tmpDetail.length;i++){
+                            //     var shaId = tmpDetail[i].split(' : ')
+                            //     var imageId = tmpDetail[i+2].split(/\s{1,}/)
+                            //     hostContainers[y.name].systemImageIds[imageId[1]] = shaId[1]
+                            //     hostContainers[y.name].shaList.push(shaId[1])
+                            // }
+    
+                        }
+                        if (containerD.length > 0){
+                            var tmpy = new Set()
+                            containerD.forEach(x=>{
+                                var cont = x.split(' ').filter(x=>x.trim().length == 64)[0]
+                                if(cont){
+                                    tmpy.add(cont)
+                                    allContainers.add(cont)
+                                }
+                            })
+                            tmpy = [...tmpy]
+                            if(tmpy.length > 0){
+                                hostContainers[y.name] = tmpy
+                            }
+                            
+                            // hostContainers[y.name]||={}
+                            // for(var i=0;i<tmpDetail.length;i++){
+                            //     console.log(tmpDetail[i])
+                            //     var imageId = tmpDetail[i].split(/\s{1,}/)
+                            // var lindex3 = tmpDetail[i].indexOf('docker-containerd-shim')
+                            // imageId = imageId[lindex3+1]
+                            // if(!systemImageIds[imageId]){
+                            // } else {
+                            //     hostContainers[y.name].imageIdList.push(imageId)
+                            //     hostContainers[y.name].shaList.push(systemImageIds[imageId])
+                            // }
+                            // }
+                            
+                        }
+                    }
+                    
+
                     tmpDetail = tmpDetail.map(a=>a.split(' ').at(-2)+" "+a.split(' ').at(-1))
 
                 }
@@ -158,7 +212,10 @@ export async function summaryObjects(runObj, _parseSummary, resObj, outputDirect
             severityObj: sevDict, 
             detailPluginCapture: detailCapture, 
             hostVulnDict: hostVulnDict,
-            vulnHostDict: vulnHostDict
+            vulnHostDict: vulnHostDict,
+            vulnReference: vulnReference,
+            hostContainers: hostContainers,
+            allContainers: [...allContainers]
         }
 
 
