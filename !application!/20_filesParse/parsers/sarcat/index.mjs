@@ -191,7 +191,7 @@ async function loadData(runObj){
     /////
     var {fileName, filePath, outputDirectory} = runObj
     var dataArray = []
-    var dataStream = createReadStream(`${filePath}/${fileName}`)
+    var dataStream = createReadStream(`"${filePath}/${fileName}"`)
     dataStream.on('data', (data)=>{
         dataArray.push(data)
     })
