@@ -1,6 +1,6 @@
 # git pull
 cd $(pwd)/commonData/cve_data/
-tar -xzvf cve.json.tar.gz
+tar -xzf cve.json.tar.gz
 cd -
     mkdir "../.tmp_dockerArchive"
 if [ ! -d "__SARCAT_ARCHIVE" ]; then

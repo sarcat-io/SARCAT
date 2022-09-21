@@ -1,5 +1,5 @@
 import {v4} from 'uuid'
-import {readdirSync, createReadStream, writeFileSync} from 'node:fs' //////////Native NodeJS File Management
+import {readdirSync, createReadStream, writeFileSync, renameSync} from 'node:fs' //////////Native NodeJS File Management
 import {createHash} from 'crypto'
 import { normalize, sep } from 'node:path'
 import { execSync } from 'node:child_process'
@@ -103,12 +103,21 @@ export class _SC_utilities {
     }
     
     directoryIterator = async (targetDirectory, passDirs) => {
+        async function remPathSpace(targetDirectory, oldName){
+            var newName = oldName.replaceAll(' ','_')
+            renameSync(`${targetDirectory}/${oldName}`,`${targetDirectory}/${newName}`)
+            return newName
+        }
         //passDirs if true includes directories in the returned array of objects
         var fp_files = []
         var rawScanFiles = readdirSync(targetDirectory,{withFileTypes:true})
+
         var dirs = rawScanFiles.filter(x=>x.isDirectory())
         var files = rawScanFiles.filter(x=>x.isFile())
         for(var d of dirs){
+            if(d.name.indexOf(' ') > -1){
+                d.name = await remPathSpace(targetDirectory,d.name)
+            }
             fp_files.push(...await this.directoryIterator(`${targetDirectory}/${d.name}`, passDirs))
             if(passDirs == true){
                 fp_files.push({name: d.name, path:targetDirectory, type: 2})
