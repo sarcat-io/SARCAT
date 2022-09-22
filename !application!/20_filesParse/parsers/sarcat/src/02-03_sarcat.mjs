@@ -269,7 +269,7 @@ async function processReport(report, sarcat_db){
 
     })
     await sarcat_db.write()
-    
+    await sarcat_db.read()
     await parsePolicy(report.Policy, sarcat_db)
 
 
