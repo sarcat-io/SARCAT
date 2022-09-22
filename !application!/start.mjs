@@ -50,3 +50,15 @@ async function _main_(){
     // parse files with status in_bundle update status to parsed and add filepath to parsed objectsd
 }
 _main_()
+
+
+async function utilTest(){
+    const jsonFile = '/Users/brianthompson/Code/SARCAT/SARCAT/__SARCAT_ARCHIVE/bundles/SARCAT_bundle_0001/02_assessment-data/02-04_poam-objects/d13c42323cb887b290185552f04c407dfa7eed6cf7055c9d669eafbbb1660fda_poam.json'
+    // SARCAT/__SARCAT_ARCHIVE/bundles/SARCAT_bundle_0001/02_assessment-data/02-04_poam-objects/de03f74dfaeca90fc8ede81afad21f73bb5458ed7c508bc2e8dfb0966a7e9e7b_poam.json
+    // SARCAT/__SARCAT_ARCHIVE/bundles/SARCAT_bundle_0001/02_assessment-data/02-04_poam-objects/0eea8541f3ce073725d125fd49fac793ab8e753c0a748a1e97a33d391d726fdf_poam.json
+    // SARCAT/__SARCAT_ARCHIVE/bundles/SARCAT_bundle_0001/02_assessment-data/02-04_poam-objects/d13c42323cb887b290185552f04c407dfa7eed6cf7055c9d669eafbbb1660fda_poam.json
+    _util.json2xlsx(jsonFile)
+
+}
+
+// utilTest()

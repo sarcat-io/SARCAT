@@ -13,6 +13,7 @@ const moduleRelPath = `.${__filename.split(process.cwd()).at(-1)}`
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //////////This Module Dependencies
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
 var logObject = {module:moduleRelPath, function:'N/A'}
 import {Easy} from 'easy-lowdb' //////////JSON Data Management Library Written by SARCAT
 import chalk from 'chalk'
@@ -20,6 +21,8 @@ import isDocker from 'is-docker'; //////////Checks if this module is running in 
 import semver from 'semver' //////////Tool for parsing and comparing parser dependency versions
 import promptUser from '../utilities/promptUser.mjs'
 const makeHash = new _SC_crypto().makeHash
+import { _SC_utilities } from '../utilities/index_utilities.mjs'
+const _util = new _SC_utilities()
 var directoryObject; var newFiles; var bundleRegistry; var rawScanFileRegistry; var sarcatConfig; var workingBundle; var updateRegistryEntry; var archiveDirectory
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //////////Parser Dependency Check
@@ -194,41 +197,58 @@ async function parseFiles(runObj,workingBundle, outDirs){
             parsedFileHashes.push(f.data.fileHash)
             var ts = Date.now()
             var cmd = `${parserEngine[ext][0].cmd} ${normalize(`${f.path}/${f.name}`)} ${f.data.fileHash} ${JSON.stringify(outDirs)}`
-            var res = execSync(cmd).toString()
-            res = res.split('\n')
-            var lines = res.filter(x=>x.indexOf('SARCAT_OUT') == 0)
-            var splitter = res.indexOf('SARCAT_SEPARATOR')
-            var sevLines = res.filter(x=>x.indexOf(sevSep)==0)
-            res = res.slice(0,splitter)
-            for(var li of sevLines){
-                var liArr = li.split(sevSep)
-                var liSev = liArr[1].split(':')[0].trim()
-                var liCount = Number(liArr[1].split(':')[1].trim())
-                res.push(`${sevSep}${numberSeverity[wordSev2Num[liSev]](liCount)}`)
-            }
-            console.log(res.join('\n'))
-            for(var l of lines){
-                l = l.split('|')
-                var mnf = new Easy(l[1],l[2])
-                await mnf.read()
-                var hashObj = {"inputName":f.name,"inputPath":f.path,"inputHash":f.data.fileHash,"outputName": l[1], "outputPath": l[2], "outputHash": await makeHash(Buffer.from(JSON.stringify(mnf.data))),"outputType":l[3],"parse_ts": ts,parserUUID: parserEngine[ext][0].uuid}
-                f.data.auditTrail||=[]
-                workingBundle.data.auditTrail||=[]
-                workingBundle.data.auditTrail.push(hashObj)
-                hashObj.bundleUUID = workingBundle.uuid
-                f.data.auditTrail.push(hashObj)
-            }
-            
-            var fileAction = {"action": "file parsed", "action_ts": ts}
-            var status = {"status": "parsed", "status_ts": ts}
-            f.currentStatus = status
-            f.data.journal.push(fileAction)
-            f.data.journal.push(status)
-            f.modified_ts = ts
-            f.hash = await makeHash(Buffer.from(JSON.stringify(f.data)))
-            await updateRegistryEntry(f, rawScanFileRegistry)
+            var cmdObject = execSync(cmd,{encoding:'utf-8'})
+            if(cmdObject.length > 0){
+                var res = cmdObject.split('\n')
+                var lines = res.filter(x=>x.indexOf('SARCAT_OUT') == 0)
+                var deliverable = res.filter(x=>x.indexOf('DELIVERABLE_OUT') == 0)
+                if(lines.length > 0){
+                    var splitter = res.indexOf('SARCAT_SEPARATOR')
+                    var sevLines = res.filter(x=>x.indexOf(sevSep)==0)
+                    res = res.slice(0,splitter)
 
-            await updateRegistryEntry(f,rawScanFileRegistry)// complete db with read write
+                    for(var li of sevLines){
+                        var liArr = li.split(sevSep)
+                        var liSev = liArr[1].split(':')[0].trim()
+                        var liCount = Number(liArr[1].split(':')[1].trim())
+                        res.push(`${sevSep}${numberSeverity[wordSev2Num[liSev]](liCount)}`)
+                    }
+                    console.log(res.join('\n'))
+                    for(var l of lines){
+                        l = l.split('|')
+                        var mnf = new Easy(l[1],l[2])
+                        await mnf.read()
+                        var hashObj = {"inputName":f.name,"inputPath":f.path,"inputHash":f.data.fileHash,"outputName": l[1], "outputPath": l[2], "outputHash": await makeHash(Buffer.from(JSON.stringify(mnf.data))),"outputType":l[3],"parse_ts": ts,parserUUID: parserEngine[ext][0].uuid}
+                        f.data.auditTrail||=[]
+                        workingBundle.data.auditTrail||=[]
+                        workingBundle.data.auditTrail.push(hashObj)
+                        hashObj.bundleUUID = workingBundle.uuid
+                        f.data.auditTrail.push(hashObj)
+                    }
+                    
+                    var fileAction = {"action": "file parsed", "action_ts": ts}
+                    var status = {"status": "parsed", "status_ts": ts}
+                    f.currentStatus = status
+                    f.data.journal.push(fileAction)
+                    f.data.journal.push(status)
+                    f.modified_ts = ts
+                    f.hash = await makeHash(Buffer.from(JSON.stringify(f.data)))
+                    await updateRegistryEntry(f, rawScanFileRegistry)
+        
+                    await updateRegistryEntry(f,rawScanFileRegistry)// complete db with read write
+                } else {
+                    console.error('Parser returned error / null object')
+
+                }
+                if(deliverable.length > 0){
+                    for(var d of deliverable){
+                        await _util.json2xlsx(d.split('|')[1],`${workingBundle.path}/04_deliverables`)
+                        // add deliverable file to registries (raw scan archive and bundle)
+                    }
+                    
+                }
+                
+            }
         }
         
         await updateRegistryEntry(workingBundle, bundleRegistry)

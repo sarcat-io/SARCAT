@@ -22,6 +22,8 @@ export const regularExpressions= [
     {"type":"kube","exp": RegExp(/k8s.*\n/gi)},
     {"type":"sha","exp": RegExp(/sha:.*\s|\n/gi)}
 ]
+
+
 var genInfoPlugins = [45590,19506,11936,95928,90191,35351,45432, 25203,33276, 133964,22869,110483,55472,14272,25221]
 
 const tagInterest = [{"type":"identifier","values":["ip", "mac", "fqdn", "id","address", "host"]},{"type":"config", "values":["os", "operating", "kernel","image","ami"]},{"type": "cloud","values":["aws","vpc","ec2"]}]
@@ -29,12 +31,17 @@ var globalCVE = []
 var globalPluginIds = []
 var data; var fileName; var outputDirectories; var fileHash; var outputDirectory; var resObj
 export async function sarcatObjects(runObj, sarcat_db, resObj, outputDirectory){
-    data = runObj.data; fileName = runObj.fileName, outputDirectories = runObj.outputDirectories; fileHash = runObj.fileHash; outputDirectory = outputDirectory
-    var res = await processReport(resObj.parse_db.data, sarcat_db)
-    res +=`Successfully created ${fileHash}_sarcat.json (Processes JSON -> Informative Data Objects\n`
-    resObj.sarcatRes = `SARCAT_OUT|${fileHash}_sarcat.json|${outputDirectory}|sarcat\n`
-    resObj.sarcat_db = sarcat_db
-    return resObj
+    try {
+        data = runObj.data; fileName = runObj.fileName, outputDirectories = runObj.outputDirectories; fileHash = runObj.fileHash; outputDirectory = outputDirectory
+        var res = await processReport(resObj.parse_db.data, sarcat_db)
+        res +=`Successfully created ${fileHash}_sarcat.json (Processes JSON -> Informative Data Objects\n`
+        resObj.sarcatRes = `SARCAT_OUT|${fileHash}_sarcat.json|${outputDirectory}|sarcat\n`
+        resObj.sarcat_db = sarcat_db
+        return resObj
+    } catch(err){
+        return {error:'sarcat', err:err}
+    }
+
 }
 async function hostProp(hp){
     var hostDict = {
@@ -103,8 +110,28 @@ async function hostProp(hp){
                 })
 
             }
-            hostDict.identifiers = idDict
+            hostDict.identifiers_parsed = idDict
             hostDict.id_source = identifiers
+            hostDict.asset_id = {}
+            for(var idType in idDict){
+                for(var entry of idDict[idType]){
+                    if(idType == 'id'){
+                        hostDict.asset_id[entry.tagName] = entry.value
+                    } else {
+                        var regExs = regularExpressions.filter(x=>x.type == idType)
+                        if(regExs.length > 0){
+                            for(var re of regExs){
+                                var res = entry.value.match(re.exp)
+                                if(res != null && res.length > 0){
+                                    hostDict.asset_id[idType] = res[0]
+                                }
+                            }
+                        }
+                    }
+                    
+
+                }
+            }
         }
     }
     return hostDict
@@ -228,10 +255,14 @@ async function parsePolicy(policy, sarcat_db){
 
 async function processReport(report, sarcat_db){
     await sarcat_db.read()
-    sarcat_db.data.host||=[]
+    sarcat_db.data.host=[]
     await report.Report[0].ReportHost.forEach(async(repHost)=>{
         var hostObject = {name: repHost.name}
         hostObject.properties = await hostProp(repHost.HostProperties)
+        hostObject.asset_id = Object.assign({},hostObject.properties.asset_id)
+        hostObject.netstat = Object.assign({},hostObject.properties.netStat)
+        delete hostObject.properties.asset_id
+        delete hostObject.properties.netStat
         hostObject.report = await processHostReport(repHost.ReportItem)
         // hostObject.containers = await containers(repHost.ReportItem.filter(a => a.pluginID = '110483').map(y => y.plugin_output))
         sarcat_db.data.host.push(hostObject)

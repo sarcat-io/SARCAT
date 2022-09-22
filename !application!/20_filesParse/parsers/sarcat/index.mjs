@@ -140,6 +140,10 @@ async function __main__(runObj){
         await parsedOutput.read()
         await parsedOutput.write()
         var resObj = await parse(runObj, parsedOutput, parseOutputDirectory)
+        if(resObj.error){
+            console.error(resObj.error, resObj.err)
+            return
+        }
         // console.log(resParse)
         // ///// 02-02
         var summaryObjectsDirectory = runObj.outputDirectories.summaryDirectory
@@ -147,14 +151,20 @@ async function __main__(runObj){
         await summaryOutput.read()
         await summaryOutput.write()
         resObj = await summaryObjects(runObj, summaryOutput, resObj, summaryObjectsDirectory)
-    
+        if(resObj.error){
+                console.error(resObj.error, resObj.err)
+                return
+        }
         /// 02-03
         var sarcatObjectsDirectory = runObj.outputDirectories.sarcatObjectsDirectory
         var sarcatOutput = new Easy(`${fileHash}_sarcat`,`${sarcatObjectsDirectory}`)
         await sarcatOutput.read()
         await sarcatOutput.write()
         resObj = await sarcatObjects(runObj, sarcatOutput, resObj, sarcatObjectsDirectory)
-
+        if(resObj.error){
+            console.error(resObj.error, resObj.err)
+            return
+        }
         // resObj.parse_db = parsedOutput
         // resObj.summary_db = summaryOutput
         // resObj.sarcat_db = sarcatOutput
@@ -165,8 +175,11 @@ async function __main__(runObj){
         await poamOutput.read()
         await poamOutput.write()
         resObj = await poam(runObj, poamOutput, resObj, poamObjectsDirectory)
+        if(resObj.error){
+            console.error(resObj.error, resObj.err)
+            return
+        }
         var {parseRes, summaryRes, sarcatRes, poamRes} = resObj
-
         console.log(parseRes, summaryRes, sarcatRes, poamRes)
     } catch(err){
         console.error(err)

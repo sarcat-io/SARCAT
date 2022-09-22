@@ -1,9 +1,11 @@
 import {v4} from 'uuid'
-import {readdirSync, createReadStream, writeFileSync, renameSync} from 'node:fs' //////////Native NodeJS File Management
+import {readdirSync, createReadStream, writeFileSync, renameSync, writeSync} from 'node:fs' //////////Native NodeJS File Management
 import {createHash} from 'crypto'
 import { normalize, sep } from 'node:path'
 import { execSync } from 'node:child_process'
-
+import xlsx from 'xlsx' ////// parsers output JSON. parser engine converts JSON to CSV and copies both to deliverable folder
+import { isArray } from 'node:util'
+const {writeXLSX} = xlsx
 export class _SC_utilities {
     constructor (directoryObject){
         this.directoryObject = directoryObject
@@ -124,6 +126,9 @@ export class _SC_utilities {
             }
         }
         for(var fn of files){
+            if(fn.name.indexOf(' ') > -1){
+                fn.name = await remPathSpace(targetDirectory,fn.name)
+            }
             fp_files.push({label: fn.name.split('.')[0], name: fn.name, path:targetDirectory, type:1, extension: fn.name.split('.').at(-1)})
         }
         return fp_files
@@ -195,5 +200,101 @@ export class _SC_utilities {
         } else {
             await this.zipData(this.directoryObject.bundleDirectory, bundleName, this.directoryObject.deliverableDirectory, bundlePW)
         }
+    }
+
+    json2xlsx = async (jsonPath, outpath) => {
+        var jD = []
+        var fileHash = jsonPath.split(sep)[0].split('_')[0]
+        var jsonData = createReadStream(jsonPath)
+        jsonData.on('data', (chunk)=> {
+            jD.push(chunk)
+        })
+
+        jsonData.on('end', ()=> {
+            jD = JSON.parse(Buffer.concat(jD))
+            iteratejD(jD)
+
+        })
+        var xlsStructure = {}
+        async function writeData(stuc){
+            for(var key in stuc){
+                writeFileSync(`${outpath}/${fileHash}_${key}.csv`, stuc[key])
+            
+            }
+        }
+        async function iteratejD(jData){
+            for(var wkshtKey in jData){
+                // if(wkshtKey == 'softwarePackages'){
+                //     console.log(jData[wkshtKey])
+                // }
+                if(jData[wkshtKey].length > 0){
+                    xlsStructure[wkshtKey] = ''
+                    var headerSet = new Set()
+                    var cols = false
+                    var rows = ''
+                    for(var row of jData[wkshtKey]){
+
+                        if(typeof row == 'string'){
+                            xlsStructure[wkshtKey]+=row+'\n'
+                        } else if (Array.isArray(row)) {
+                            console.log(row)
+                        } else {
+                            cols = true
+                            for(var col in row){
+                                headerSet.add(col)
+                            }
+                        }
+                    }
+                    if(cols == true){
+                        headerSet = [...headerSet]
+                        for(var rowObj of jData[wkshtKey]){
+                            var row = []
+                            for(var h of headerSet){
+                                if(rowObj[h]){
+
+                                }
+                                if(Array.isArray(rowObj[h])){
+                                    if(typeof rowObj[h][0] == 'string') {
+                                        row.push(`"${rowObj[h].join('\n')}"`)
+                                    } else {
+                                        // for()
+                                        var wr = ''
+                                        var count = 0
+                                        for(var cell of rowObj[h]){
+                                            // wr += `${JSON.stringify(cell)}`
+                                            // console.log(JSON.stringify(cell).replaceAll('  |  ', '\n'))
+                                            var ss = ''
+                                            for(var k in cell){
+                                                ss += `${cell[k]}\n`
+                                                // wr += `${k}: ${cell[k]}\n`
+                                            }
+                                            wr += ss
+                                            
+                                            // wr +="\n"
+                                        }
+
+                                        row.push(`"${wr}"`)
+                                    }
+                                    
+                                }else if(rowObj[h] == 'object'){
+                                    // console.log(h)
+                                } else if(rowObj[h]) {
+                                    row.push(`"${String(rowObj[h])}"`)
+                                } else{
+                                    row.push(null)
+                                }
+                            }
+                            rows += row.join(',') + '\n'
+                        }
+                        xlsStructure[wkshtKey] = headerSet +'\n' + rows
+                    }
+                }
+                
+            }
+            writeData(xlsStructure)
+        }
+
+        console.log(`Files written to ${outpath}`)
+        return
     }
 }

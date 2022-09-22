@@ -22,7 +22,7 @@
     "iv&v"
   ],
   "author": "SARCAT.io",
-  "license": "GNU GPL v3.0",
+  "license": "GPL-3.0-only",
   "bugs": {
     "url": "https://github.com/sarcat-io/SARCAT/issues"
   },
@@ -47,6 +47,7 @@
     "remove": "^0.1.5",
     "semver": "^7.3.7",
     "steno": "^2.1.0",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "xlsx": "^0.18.5"
   }
 }
