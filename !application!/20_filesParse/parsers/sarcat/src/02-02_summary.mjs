@@ -10,8 +10,7 @@ var systemImageIds = {}
 export async function summaryObjects(runObj, _parseSummary, resObj, outputDirectory){
     try {
         var res = ''
-        var {data, fileName, outputDirectories, fileHash} = runObj
-        var outputDirectory = outputDirectories.parsedRawDirectory
+        var {data, fileName, fileHash} = runObj
         var scanParse_db = Object.assign({}, resObj.parse_db.data)
     
     

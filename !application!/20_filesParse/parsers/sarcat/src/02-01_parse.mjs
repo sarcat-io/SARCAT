@@ -32,8 +32,7 @@ var numberSeverity = {
 
 export async function parse(runObj, _scanParse_db, outputDirectory){
     try {
-        var {data, fileName, outputDirectories, fileHash} = runObj
-        var outputDirectory = outputDirectories.parsedRawDirectory
+        var {data, fileName, fileHash} = runObj
     
         if (parser.validate(data) === true) { 
             var jsonObj = parser.parse(data, xmlParserOptions);
@@ -75,7 +74,7 @@ export async function parse(runObj, _scanParse_db, outputDirectory){
             for(var k of Object.keys(sevCount)){
                 res+=`  |-   ${numberSeverity[k]}: ${sevCount[k]}\n`
             }
-            res+=`SARCAT_OUT|${fileName.slice(0, -7)}_parsed.json|${outputDirectory}02-01_parsed-raw-data|parsed\n`
+            res+=`SARCAT_OUT|${fileHash}_parsed.json|${outputDirectory}02-01_parsed-raw-data|parsed\n`
             return {parseRes:res, parse_db:_scanParse_db}
         }
     }catch(err){

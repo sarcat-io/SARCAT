@@ -4,17 +4,19 @@ import { readFileSync } from "node:fs";
 import {_SC_utilities} from '../../../../utilities/index_utilities.mjs'
 import { writeFileSync } from "node:fs";
 //https://cve.mitre.org/data/downloads/allitems.csv.gz
-// summary vulnReference is POAM
+// unique bios and image IDs (e.g. AMI) for better grouping
 
 async function getCVE(year){
     var cve_db = new Easy(`CVE-${year}`,normalize(`${process.cwd()}/../commonData/cve_data/`))
     return cve_db.read()
 }
-var data; var fileName; var outputDirectories; var fileHash; var outputDirectory; var resObj
+var data; var fileName; var fileHash; var outputDirectory; var resObj
 
-export async function poam(runObj, poam_db, resObj, poamOutput){
+export async function poam(runObj, poam_db, ro, outDir){
+    resObj = ro
+    outputDirectory = outDir
     try {
-        data = runObj.data; fileName = runObj.fileName, outputDirectories = runObj.outputDirectories; fileHash = runObj.fileHash; outputDirectory = poamOutput
+        data = runObj.data; fileName = runObj.fileName, fileHash = runObj.fileHash; 
         const utils = new _SC_utilities()
         var cveDict = {}
         var vulnDict = {}

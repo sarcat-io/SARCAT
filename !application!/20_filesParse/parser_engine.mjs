@@ -293,16 +293,7 @@ export default async function (_SC_classObject){
     
     var parseObject = await getParsers()
     parseObject.bundleDirectory = workingBundle.path
-    // loadParsers({parsers:parsers, rawScanFiles: rawScanFiles, extensions: parserExtensions})
-    var outDirs = (bDir) => {
-        return {
-            "parsedRawDirectory":`${bDir}/02_assessment-data/02-01_parsed-raw-data/`,
-            "summaryDirectory":`${bDir}/02_assessment-data/02-02_summary-objects/`,
-            "sarcatObjectsDirectory":`${bDir}/02_assessment-data/02-03_sarcat-objects/`,
-            "poamObjectsDirectory":`${bDir}/02_assessment-data/02-04_poam-objects/`
-        }
-    }
-    return await parseFiles(parseObject, workingBundle, outDirs(workingBundle.path))
+    return await parseFiles(parseObject, workingBundle, workingBundle.path)
     
     //log activity output to activityLog
     // check that all files are parsed and update bundle status before running normalize

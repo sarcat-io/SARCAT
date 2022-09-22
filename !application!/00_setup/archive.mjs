@@ -1,4 +1,5 @@
-import { existsSync, mkdirSync } from 'node:fs' //////////Native NodeJS File Management
+import { existsSync, mkdirSync, chownSync} from 'node:fs' //////////Native NodeJS File Management
+import {execSync} from 'node:child_process'
 import { fileURLToPath } from 'url' //////////Native NodeJS fileUrl <> Path function
 import { dirname, normalize } from 'path' //////////Native NodeJS local file path functions
 const __filename = fileURLToPath(import.meta.url)
@@ -25,6 +26,8 @@ export async function setupArchive(_sc){
             console.log(`Creating SARCAT Archive Directory at ${archiveDirectory}`)
             mkdirSync(archiveDirectory)
         }
+
+        chownSync(archiveDirectory,0,0)
         console.log(`\nSARCAT Archive Paths:\n    -| Container Volume: ${chalk.yellowBright(archiveDirectory)} \n    -| Host/Local Drive: ${chalk.yellow(`${process.argv[2]}/__SARCAT_ARCHIVE`)}`)
         var archiveDirectoryContents = await iterateDirectory(archiveDirectory, true) //readdirSync(archiveDirectory, {withFileTypes:true})
         var archiveDirectoryContentNames = archiveDirectoryContents.map(x=>x.name)

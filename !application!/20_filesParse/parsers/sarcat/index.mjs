@@ -122,7 +122,17 @@ async function normalization(){
 
 
 async function __main__(runObj){
+
     var resObj = {}
+    var outDirs = (bDir) => {
+        return {
+            "parsedRawDirectory":`${bDir}/02_assessment-data/02-01_parsed-raw-data/`,
+            "summaryDirectory":`${bDir}/02_assessment-data/02-02_summary-objects/`,
+            "sarcatObjectsDirectory":`${bDir}/02_assessment-data/02-03_sarcat-objects/`,
+            "poamObjectsDirectory":`${bDir}/02_assessment-data/02-04_poam-objects/`
+        }
+    }
+    var outputDirectories = outDirs(runObj.outputDirectory)
     /**
      * The main function preps the output directories for each subsequent functions exection
      * Although not linear, most functions will use the output of previous functions as data inputs
@@ -131,12 +141,14 @@ async function __main__(runObj){
      *      output directory path and filename
      * 
      */
+    console.log(outputDirectories)
     try {
         const {fileName, fileHash} = runObj
         const fileLabel = fileName.slice(0, -7)
         ///// 02-01
-        var parseOutputDirectory = runObj.outputDirectories.parsedRawDirectory
+        var parseOutputDirectory = outputDirectories.parsedRawDirectory
         var parsedOutput = new Easy(`${fileHash}_parsed`,`${parseOutputDirectory}`)
+        console.log(parseOutputDirectory)
         await parsedOutput.read()
         await parsedOutput.write()
         var resObj = await parse(runObj, parsedOutput, parseOutputDirectory)
@@ -146,7 +158,7 @@ async function __main__(runObj){
         }
         // console.log(resParse)
         // ///// 02-02
-        var summaryObjectsDirectory = runObj.outputDirectories.summaryDirectory
+        var summaryObjectsDirectory = outputDirectories.summaryDirectory
         var summaryOutput = new Easy(`${fileHash}_summary`,`${summaryObjectsDirectory}`)
         await summaryOutput.read()
         await summaryOutput.write()
@@ -156,7 +168,7 @@ async function __main__(runObj){
                 return
         }
         /// 02-03
-        var sarcatObjectsDirectory = runObj.outputDirectories.sarcatObjectsDirectory
+        var sarcatObjectsDirectory = outputDirectories.sarcatObjectsDirectory
         var sarcatOutput = new Easy(`${fileHash}_sarcat`,`${sarcatObjectsDirectory}`)
         await sarcatOutput.read()
         await sarcatOutput.write()
@@ -170,8 +182,8 @@ async function __main__(runObj){
         // resObj.sarcat_db = sarcatOutput
     
         ///// 02-04
-        var poamObjectsDirectory = runObj.outputDirectories.poamObjectsDirectory
-        var poamOutput = new Easy(`${fileHash}_poam`,`${runObj.outputDirectories.poamObjectsDirectory}`)
+        var poamObjectsDirectory = outputDirectories.poamObjectsDirectory
+        var poamOutput = new Easy(`${fileHash}_poam`,`${outputDirectories.poamObjectsDirectory}`)
         await poamOutput.read()
         await poamOutput.write()
         resObj = await poam(runObj, poamOutput, resObj, poamObjectsDirectory)
@@ -219,15 +231,15 @@ if (import.meta.url === url.pathToFileURL(process.argv[1]).href) {
     /////
     ///// Grabs arguments from the command line issued by the parser engine
     /////
-    var outputDirectories = {}
-    for(var i=4;i<process.argv.length;i++){
-        outputDirectories[process.argv[i].split(':')[0]] = process.argv[i].split(':')[1]
-    }
+    // var outputDirectories = {}
+    // for(var i=4;i<process.argv.length;i++){
+    //     outputDirectories[process.argv[i].split(':')[0]] = process.argv[i].split(':')[1]
+    // }
     var rawFilePath = process.argv[2].split('/')
     var rawfileName = rawFilePath.pop()
     var fileHash = process.argv[3]
     rawFilePath = rawFilePath.join('/')
-    var runObj = {fileName:rawfileName, filePath:rawFilePath, fileHash: fileHash, outputDirectories: outputDirectories}
+    var runObj = {fileName:rawfileName, filePath:rawFilePath, fileHash: fileHash, outputDirectory: process.argv[4]}
     loadData(runObj)
 }
 

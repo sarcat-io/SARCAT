@@ -29,10 +29,12 @@ var genInfoPlugins = [45590,19506,11936,95928,90191,35351,45432, 25203,33276, 13
 const tagInterest = [{"type":"identifier","values":["ip", "mac", "fqdn", "id","address", "host"]},{"type":"config", "values":["os", "operating", "kernel","image","ami"]},{"type": "cloud","values":["aws","vpc","ec2"]}]
 var globalCVE = []
 var globalPluginIds = []
-var data; var fileName; var outputDirectories; var fileHash; var outputDirectory; var resObj
-export async function sarcatObjects(runObj, sarcat_db, resObj, outputDirectory){
+var data; var fileName; var fileHash; var outputDirectory; var resObj
+export async function sarcatObjects(runObj, sarcat_db, ro, outpDir){
+    resObj = ro
+    outputDirectory = outpDir
     try {
-        data = runObj.data; fileName = runObj.fileName, outputDirectories = runObj.outputDirectories; fileHash = runObj.fileHash; outputDirectory = outputDirectory
+        data = runObj.data; fileName = runObj.fileName, fileHash = runObj.fileHash;
         var res = await processReport(resObj.parse_db.data, sarcat_db)
         res +=`Successfully created ${fileHash}_sarcat.json (Processes JSON -> Informative Data Objects\n`
         resObj.sarcatRes = `SARCAT_OUT|${fileHash}_sarcat.json|${outputDirectory}|sarcat\n`
@@ -240,7 +242,8 @@ async function parsePolicy(policy, sarcat_db){
     var pluginIds = [...new Set(pluginPreferences.map(x=>x.pluginId))]
     sarcat_db.data.assessment.pluginIds = pluginIds 
     var pidall = []
-    var pluginIdAll = [... new Set(sarcat_db.data.host.map(x=>x.report.host_report_summary.pluginIDs))].forEach(y=>{
+    var pidset = [... new Set(sarcat_db.data.host.map(x=>x.report.host_report_summary.pluginIDs))]
+    pidset.forEach(y=>{
         pidall.push(...y)
     })
     pidall = [...new Set(pidall)]
