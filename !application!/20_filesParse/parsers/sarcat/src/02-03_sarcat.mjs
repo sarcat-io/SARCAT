@@ -255,7 +255,7 @@ async function parsePolicy(policy, sarcat_db){
 
 async function processReport(report, sarcat_db){
     await sarcat_db.read()
-    sarcat_db.data.host=[]
+    sarcat_db.data.host||=[]
     await report.Report[0].ReportHost.forEach(async(repHost)=>{
         var hostObject = {name: repHost.name}
         hostObject.properties = await hostProp(repHost.HostProperties)
