@@ -204,7 +204,7 @@ export class _SC_utilities {
 
     json2xlsx = async (jsonPath, outpath) => {
         var jD = []
-        var fileHash = jsonPath.split(sep)[0].split('_')[0]
+        var fileHash = jsonPath.split(sep).at(-1).split('_')[0]
         var jsonData = createReadStream(jsonPath)
         jsonData.on('data', (chunk)=> {
             jD.push(chunk)

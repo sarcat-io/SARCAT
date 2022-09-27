@@ -122,6 +122,52 @@
     "data":{"archive":{}}
   },
   {
+    "label": "systemRegistry",
+    "easy": "systemRegistry.sarcat",
+    "name": "systemRegistry.sarcat.json",
+    "dir": "/.sarcat/",
+    "type": 1,
+    "template": "",
+    "data":{"system":[{"uuid":"","name":"", "created_ts":"","modified_ts":"","authorizationFrameworks":[{"name": "","uuid":"", "status":"","controlSelection":[]}]}]}
+  },
+  {
+    "label": "authorizationFrameworkRegistry",
+    "easy": "authorizationFrameworkRegistry.sarcat",
+    "name": "authorizationFrameworkRegistry.sarcat.json",
+    "dir": "/.sarcat/",
+    "type": 1,
+    "template": "",
+    "data":{"frameworks":[{"uuid":"","name":"", "created_ts":"","modified_ts":"","meta":[],"assuranceLevels":"", "controls": []}]}
+  },
+  {
+    "label": "assetRegistry",
+    "easy": "assetRegistry.sarcat",
+    "name": "assetRegistry.sarcat.json",
+    "dir": "/.sarcat/",
+    "type": 1,
+    "template": "",
+    "data":{"assets":[{"uuid":"","name":"", "created_ts":"","modified_ts":"","meta":[{"firstSeen":"","lastSeen":"", "type":"","configuration": {}}]}]}
+  },
+  {
+    "label": "assessmentRegistry",
+    "easy": "assessmentRegistry.sarcat",
+    "name": "assessmentRegistry.sarcat.json",
+    "dir": "/.sarcat/",
+    "type": 1,
+    "template": "",
+    "data":{"assessments":[{"uuid":"","name":"", "created_ts":"","modified_ts":"","meta":[{"firstSeen":"","lastSeen":"", "type":"","configuration": {}}]}]}
+  },
+  {
+    "label": "reportingRegistry",
+    "easy": "reportingRegistry.sarcat",
+    "name": "reportingRegistry.sarcat.json",
+    "dir": "/.sarcat/",
+    "type": 1,
+    "template": "",
+    "data":{"reports":[{"uuid":"","name":"", "created_ts":"","modified_ts":"","meta":[]}]},
+    "description": "formal reporting, frequency, aos names"
+  },
+  {
     "label": "keyManagement",
     "easy": "keyManagement.sarcat",
     "name": "keyManagement.sarcat.json",

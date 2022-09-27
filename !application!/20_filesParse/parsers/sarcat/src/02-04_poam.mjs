@@ -117,7 +117,7 @@ export async function poam(runObj, poam_db, ro, outDir){
         var res =''
         res +=`Successfully created ${fileHash}_poam.json (Processed Data -> POAM Output Objects\n`
         resObj.poamRes = res + `SARCAT_OUT|${fileHash}_poam.json|${outputDirectory}|poam\n`
-        resObj.poamRes = res + `DELIVERABLE_OUT|${outputDirectory}/${fileHash}_poam.json\n`
+        resObj.poamRes = res + `DELIVERABLE_OUT|${outputDirectory}${fileHash}_poam.json\n`
     
         resObj.poam_db = poam_db
         return resObj

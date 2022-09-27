@@ -141,14 +141,12 @@ async function __main__(runObj){
      *      output directory path and filename
      * 
      */
-    console.log(outputDirectories)
+
     try {
-        const {fileName, fileHash} = runObj
-        const fileLabel = fileName.slice(0, -7)
+        const {fileHash} = runObj
         ///// 02-01
         var parseOutputDirectory = outputDirectories.parsedRawDirectory
         var parsedOutput = new Easy(`${fileHash}_parsed`,`${parseOutputDirectory}`)
-        console.log(parseOutputDirectory)
         await parsedOutput.read()
         await parsedOutput.write()
         var resObj = await parse(runObj, parsedOutput, parseOutputDirectory)
@@ -156,7 +154,7 @@ async function __main__(runObj){
             console.error(resObj.error, resObj.err)
             return
         }
-        // console.log(resParse)
+
         // ///// 02-02
         var summaryObjectsDirectory = outputDirectories.summaryDirectory
         var summaryOutput = new Easy(`${fileHash}_summary`,`${summaryObjectsDirectory}`)
@@ -177,9 +175,6 @@ async function __main__(runObj){
             console.error(resObj.error, resObj.err)
             return
         }
-        // resObj.parse_db = parsedOutput
-        // resObj.summary_db = summaryOutput
-        // resObj.sarcat_db = sarcatOutput
     
         ///// 02-04
         var poamObjectsDirectory = outputDirectories.poamObjectsDirectory
