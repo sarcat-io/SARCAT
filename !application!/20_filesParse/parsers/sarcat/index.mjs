@@ -27,6 +27,7 @@ import {parse} from './src/02-01_parse.mjs'
 import {summaryObjects} from './src/02-02_summary.mjs'
 import {sarcatObjects} from './src/02-03_sarcat.mjs'
 import {poam} from './src/02-04_poam.mjs'
+import {oscal} from './src/02-05_oscal_inventory.mjs'
 
 
 
@@ -187,7 +188,10 @@ async function __main__(runObj){
             return
         }
         var {parseRes, summaryRes, sarcatRes, poamRes} = resObj
-        console.log(parseRes, summaryRes, sarcatRes, poamRes)
+        console.log(parseRes)
+        console.log(summaryRes)
+        console.log(sarcatRes)
+        console.log(poamRes)
     } catch(err){
         console.error(err)
     }

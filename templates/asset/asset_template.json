@@ -1,0 +1,269 @@
+{
+    "uuid":"",
+    "name":"", 
+    "created_ts":"",
+    "modified_ts":"",
+    "hash":"",
+    "template":{
+        "uuid":"",
+        "first_ts":"",
+        "last_ts":"",
+        "status": ["new", "implementing","operational", "sunset", "decommissioned"],
+        "name":"",
+        "value":"",
+        "parent":"",
+        "parent_type":"",
+        "type":"",
+        "hash":"",
+        "data":{
+            "uuid":"",
+            "modified_ts":"",
+            "name":"",
+            "value":"",
+            "parent":"",
+            "parent_type":"",
+            "type":"",
+            "bindings": [{"uuid":"of instance or attribute","type":"uuid of instance or attribute type","isInstance":"if unique instance of type","isAttribute":"label or information","isParent":"true is parent, null is peer, false is child"}],
+            "journal":[
+                {
+                    "uuid":"",
+                    "modified_ts":"",
+                    "name":"",
+                    "value":"",
+                    "parent":"",
+                    "parent_type":"",
+                    "type":"",
+                    "bindings":[{"uuid":"of instance or attribute","type":"uuid of instance or attribute type","isInstance":"if unique instance of type","isAttribute":"label or information","isParent":"true is parent, null is peer, false is child"}]
+                }
+            ]
+        }
+    },
+    "assets":[
+        
+    ],
+    "assetTypes":[
+        {"uuid":"65d53950-d7cf-4bc7-837a-56c778bdc84d","category":null,"parent":null,"name":"this-system","alias":["this"]},
+
+        {"uuid":"25e11785-7825-4620-b450-aa237144593a","category":"top","parent":"65d53950-d7cf-4bc7-837a-56c778bdc84d","name":"geospatial","alias":[""], "registerInstances": true},
+        {"uuid":"2dcb6839-6e9c-4f82-8a53-615937be5575","category":"geospatial","parent":"25e11785-7825-4620-b450-aa237144593a","name":"country","alias":[""], "registerInstances": true},
+        {"uuid":"861d9d05-0bb6-4872-8b2e-6d29ac4a68ec","category":"geospatial","parent":"2dcb6839-6e9c-4f82-8a53-615937be5575","name":"region","alias":[""], "registerInstances": true},
+        {"uuid":"e87b0e38-faf7-402b-86e6-b824a2803757","category":"geospatial","parent":"861d9d05-0bb6-4872-8b2e-6d29ac4a68ec","name":"address","alias":[""], "registerInstances": null},
+        {"uuid":"30fa106f-a1d8-4e28-be9e-b9283d47ad32","category":"geospatial","parent":"861d9d05-0bb6-4872-8b2e-6d29ac4a68ec","name":"datacenter","alias":[""], "registerInstances": null},
+        {"uuid":"74edc811-9fa9-4787-ab14-34fa881d7f9e","category":"geospatial","parent":"30fa106f-a1d8-4e28-be9e-b9283d47ad32","name":"building","alias":[""], "registerInstances": false},
+        {"uuid":"2d03930c-ff6b-42a0-ae8c-0e13754d9e02","category":"geospatial","parent":"74edc811-9fa9-4787-ab14-34fa881d7f9e","name":"floor","alias":[""], "registerInstances": false},
+        {"uuid":"260ff011-2597-48a6-92eb-ad8e4f45b764","category":"geospatial","parent":"2d03930c-ff6b-42a0-ae8c-0e13754d9e02","name":"rack","alias":[""], "registerInstances": false},
+        {"uuid":"03b07ead-d633-4a61-aa67-a874cc39634b","category":"geospatial","parent":"03b07ead-d633-4a61-aa67-a874cc39634b","name":"chassis","alias":[""], "registerInstances": false},
+
+
+        {"uuid":"ae2fed74-60ca-42f9-96ca-02aea61856ac","category":"top","parent":"65d53950-d7cf-4bc7-837a-56c778bdc84d","name":"logical","alias":[""], "registerInstances": true},
+        {"uuid":"72dfb298-c806-4b93-b379-ef279b44ac57","category":"logical","parent":"ae2fed74-60ca-42f9-96ca-02aea61856ac","name":"accountId","alias":[""], "registerInstances": false},
+        {"uuid":"b3a03eea-63cc-47a4-adfb-dac5e6f165a0","category":"logical","parent":"ae2fed74-60ca-42f9-96ca-02aea61856ac","name":"availabilityZone","alias":[""], "registerInstances": true},
+        {"uuid":"b730f216-924f-48af-9508-88772a3581c5","category":"logical","parent":"ae2fed74-60ca-42f9-96ca-02aea61856ac","name":"cluster","alias":[""], "registerInstances": false},
+        {"uuid":"3250af87-fab5-404f-b971-0fb2a3bb4173","category":"logical","parent":"ae2fed74-60ca-42f9-96ca-02aea61856ac","name":"vpc-id","alias":[""], "registerInstances": false},
+        {"uuid":"145b6a55-0d76-4d63-bc41-2b45c0b096c7","category":"logical","parent":"ae2fed74-60ca-42f9-96ca-02aea61856ac","name":"instanceId","alias":[""], "registerInstances": false},
+        {"uuid":"419b54e1-c2ec-404c-b0cb-960a95e53e37","category":"logical","parent":"ae2fed74-60ca-42f9-96ca-02aea61856ac","name":"imageId","alias":[""], "registerInstances": false},
+        {"uuid":"53b819fb-1351-4c28-9191-48097c9f67a4","category":"logical","parent":"ae2fed74-60ca-42f9-96ca-02aea61856ac","name":"ami-id","alias":[""], "registerInstances": true},
+        {"uuid":"51ac5365-2378-4902-80db-c3866c03477f","category":"logical","parent":"ae2fed74-60ca-42f9-96ca-02aea61856ac","name":"instanceType","alias":[""], "registerInstances": true},
+
+
+
+
+        {"uuid":"ba4e338b-6a93-4f1c-ad1a-bd0de1566ba6","category":"top","parent":"65d53950-d7cf-4bc7-837a-56c778bdc84d","name":"functional","alias":[""], "registerInstances": true},
+
+        {"uuid":"2d264087-eed0-403d-ac46-940242f85980","category":"functional","parent":"ba4e338b-6a93-4f1c-ad1a-bd0de1566ba6","name":"service","alias":[""], "registerInstances": false},
+        {"uuid":"ec77591b-bb85-4e19-999f-b9eec57f014c","category":"functional","parent":"2d264087-eed0-403d-ac46-940242f85980","name":"3rd_party_service","alias":[""], "registerInstances": true},
+        {"uuid":"d5e21cfd-b57a-4370-a2a5-17e09dc357b5","category":"compute","parent":"9fc46d4c-e2d6-49bd-83ac-e1d95c2833b5","name":"IaaS","alias":[""], "registerInstances": true},
+        {"uuid":"e02da0d5-bd6b-4ef6-ba55-a32847493f7e","category":"functional","parent":"2d264087-eed0-403d-ac46-940242f85980","name":"service_offering","alias":[""], "registerInstances": true},
+        {"uuid":"bf292c22-987c-49b0-8ca8-458ce76d86a7","category":"functional","parent":"ba4e338b-6a93-4f1c-ad1a-bd0de1566ba6","name":"endpoint","alias":[""], "registerInstances": null},
+        {"uuid":"fe70e195-fb87-428a-9b9c-7290872b9020","category":"functional","parent":"ba4e338b-6a93-4f1c-ad1a-bd0de1566ba6","name":"interconnect","alias":[""], "registerInstances": false},
+
+        {"uuid":"e83e3889-bcfb-4456-a189-78e2aac337d0","category":"functional","parent":"ba4e338b-6a93-4f1c-ad1a-bd0de1566ba6","name":"data","alias":[""], "registerInstances": false},
+        {"uuid":"6ea24a26-a7f6-4a12-b0c5-b3029706b8a5","category":"data","parent":"e83e3889-bcfb-4456-a189-78e2aac337d0","name":"san","alias":[""], "registerInstances": false},
+        {"uuid":"815b0596-7b2c-44c6-913c-3be627c94686","category":"data","parent":"e83e3889-bcfb-4456-a189-78e2aac337d0","name":"disk","alias":[""], "registerInstances": false},
+        {"uuid":"349fcc7d-3b31-448e-9ec0-ef22420eebf2","category":"data","parent":"e83e3889-bcfb-4456-a189-78e2aac337d0","name":"ramdiskId","alias":[""], "registerInstances": false},
+        {"uuid":"4363ddfa-85a0-48a6-9b4b-30ba4ec38ba0","category":"data","parent":"e83e3889-bcfb-4456-a189-78e2aac337d0","name":"data_service","alias":[""], "registerInstances": false},
+
+        
+        {"uuid":"b44d3255-8de8-4745-955e-fededc4e8361","category":"functional","parent":"ba4e338b-6a93-4f1c-ad1a-bd0de1566ba6","name":"network","alias":[""], "registerInstances": false},
+        {"uuid":"c80cd54b-fc1a-454a-a273-a938fe0b3459","category":"network","parent":"b44d3255-8de8-4745-955e-fededc4e8361","name":"circuit","alias":[""], "registerInstances": false},
+        {"uuid":"c5b2c8a8-18ad-4442-b401-5f12e600d3cb","category":"network","parent":"b44d3255-8de8-4745-955e-fededc4e8361","name":"gateway","alias":[""], "registerInstances": false},
+        {"uuid":"d4fde2a8-7a8e-440b-aa72-bce354514509","category":"network","parent":"b44d3255-8de8-4745-955e-fededc4e8361","name":"route","alias":[""], "registerInstances": false},
+        {"uuid":"d4fde2a8-7a8e-440b-aa72-bce354514509","category":"network","parent":"b44d3255-8de8-4745-955e-fededc4e8361","name":"internal_route","alias":[""], "registerInstances": false},
+        {"uuid":"d4fde2a8-7a8e-440b-aa72-bce354514509","category":"network","parent":"b44d3255-8de8-4745-955e-fededc4e8361","name":"external_route","alias":[""], "registerInstances": false},
+        {"uuid":"d4fde2a8-7a8e-440b-aa72-bce354514509","category":"network","parent":"b44d3255-8de8-4745-955e-fededc4e8361","name":"interconnect_route","alias":[""], "registerInstances": false},
+
+        {"uuid":"3cd4e1bd-4f57-4c1a-8e34-87ef3d5deab0","category":"network","parent":"b44d3255-8de8-4745-955e-fededc4e8361","name":"subnet","alias":[""], "registerInstances": false},
+        {"uuid":"0b9a37b1-7677-4d3d-9b53-4df81c726fc9","category":"network","parent":"3cd4e1bd-4f57-4c1a-8e34-87ef3d5deab0","name":"ipv4","alias":[""], "registerInstances": false},
+        {"uuid":"43861c61-9a49-41c8-b4a7-b0f88a59c049","category":"network","parent":"0b9a37b1-7677-4d3d-9b53-4df81c726fc9","name":"vip","alias":[""], "registerInstances": false},
+        {"uuid":"ed610b4e-ead7-4a36-8a1d-e6069942aa9f","category":"network","parent":"0b9a37b1-7677-4d3d-9b53-4df81c726fc9","name":"ipv4_port_pair","alias":[""], "registerInstances": false},
+
+        {"uuid":"68729dcf-cef6-4bd5-865b-4adb4ae6c7c8","category":"network","parent":"b44d3255-8de8-4745-955e-fededc4e8361","name":"mac","alias":[""], "registerInstances": false},
+        {"uuid":"405d602b-65b3-4230-a0ff-fa0c5cb13d52","category":"network","parent":"b44d3255-8de8-4745-955e-fededc4e8361","name":"ipv6","alias":[""], "registerInstances": false},
+        {"uuid":"693fc6a7-7bf1-430f-8aef-68eb520f2b6c","category":"network","parent":"b44d3255-8de8-4745-955e-fededc4e8361","name":"domain","alias":[""], "registerInstances": true},
+        {"uuid":"ee49453d-1d9a-4ae2-afc2-20252dee7764","category":"network","parent":"b44d3255-8de8-4745-955e-fededc4e8361","name":"fqdn","alias":[""], "registerInstances": true},
+        {"uuid":"489918d1-58cb-421b-8ac9-bc6bfb6272b7","category":"network","parent":"b44d3255-8de8-4745-955e-fededc4e8361","name":"hostname","alias":[""], "registerInstances": false},
+        {"uuid":"cc1b4642-33e6-4708-89dc-d9b1bd55ce35","category":"network","parent":"b44d3255-8de8-4745-955e-fededc4e8361","name":"interface","alias":[""], "registerInstances": false},
+
+        {"uuid":"6e0cd1dc-986d-40f6-a4c9-5578757da74e","category":"network","parent":"ed610b4e-ead7-4a36-8a1d-e6069942aa9f","name":"connection", "state":["listening", "established"],"alias":[""], "registerInstances": false},
+
+        {"uuid":"3ee99a22-ee8e-4e43-9323-eb9b24f8b32d","category":"connection","parent":"6e0cd1dc-986d-40f6-a4c9-5578757da74e","name":"internal","alias":[""], "registerInstances": true},
+        {"uuid":"1ca07c1c-e3d4-45c1-95a0-5acbf5a55e27","category":"connection","parent":"3ee99a22-ee8e-4e43-9323-eb9b24f8b32d","name":"local","alias":[""], "registerInstances": true},
+        {"uuid":"50662dde-92ae-44fb-a7a2-62947941f9f3","category":"connection","parent":"3ee99a22-ee8e-4e43-9323-eb9b24f8b32d","name":"management","alias":[""], "registerInstances": true},
+        {"uuid":"b69d1b10-d8d4-4cb9-b655-deec4069f26e","category":"connection","parent":"3ee99a22-ee8e-4e43-9323-eb9b24f8b32d","name":"system_operation","alias":[""], "registerInstances": true},
+        {"uuid":"5b2b3684-aca1-436e-b9a5-24ebf1d9c982","category":"connection","parent":"3ee99a22-ee8e-4e43-9323-eb9b24f8b32d","name":"system_build","alias":[""], "registerInstances": true},
+
+        {"uuid":"5dc90ea9-a43b-4ef9-8244-ea8d16df50ad","category":"connection","parent":"6e0cd1dc-986d-40f6-a4c9-5578757da74e","name":"external","alias":[""], "registerInstances": true},
+        {"uuid":"19e739ec-14fa-4bbf-8eda-5839e779dc69","category":"connection","parent":"5dc90ea9-a43b-4ef9-8244-ea8d16df50ad","name":"admin_egress","alias":[""], "registerInstances": true},
+        {"uuid":"696c1c31-e527-4be3-b186-f7f04fd3eeec","category":"connection","parent":"5dc90ea9-a43b-4ef9-8244-ea8d16df50ad","name":"system_egress","alias":[""], "registerInstances": true},
+        {"uuid":"0a5407a7-e78a-4d7a-97f6-fdd40637506c","category":"connection","parent":"5dc90ea9-a43b-4ef9-8244-ea8d16df50ad","name":"authorized_interconnect","alias":[""], "registerInstances": true},
+        {"uuid":"552f067b-83d7-4a64-a09a-7bc3203f648f","category":"connection","parent":"5dc90ea9-a43b-4ef9-8244-ea8d16df50ad","name":"trusted","alias":[""], "registerInstances": true},
+        {"uuid":"564897d7-3d94-453f-831f-6b5c5d07cf10","category":"connection","parent":"5dc90ea9-a43b-4ef9-8244-ea8d16df50ad","name":"untrusted","alias":[""], "registerInstances": true},
+
+
+        {"uuid":"9fc46d4c-e2d6-49bd-83ac-e1d95c2833b5","category":"functional","parent":"ba4e338b-6a93-4f1c-ad1a-bd0de1566ba6","name":"compute","alias":[""], "registerInstances": true},
+
+        {"uuid":"aa367f21-ca7d-4fbd-bcd0-91d3f0c5e4b4","category":"compute","parent":"9fc46d4c-e2d6-49bd-83ac-e1d95c2833b5","name":"cpu","alias":[""], "registerInstances": true},
+        {"uuid":"a724846b-298d-4377-a0b3-54e25740185f","category":"compute","parent":"aa367f21-ca7d-4fbd-bcd0-91d3f0c5e4b4","name":"architecture","alias":[""], "registerInstances": true},
+        {"uuid":"53007a8d-b11b-423f-8e1a-7776c6598201","category":"compute","parent":"9fc46d4c-e2d6-49bd-83ac-e1d95c2833b5","name":"gpu","alias":[""], "registerInstances": true},
+        {"uuid":"5675ecf7-ec0d-4db5-aea3-1c2cff8b043e","category":"compute","parent":"9fc46d4c-e2d6-49bd-83ac-e1d95c2833b5","name":"tpu","alias":[""], "registerInstances": true},
+
+
+        
+        {"uuid":"8ff58122-9e73-4ec5-bd51-d621065156b0","category":"functional","parent":"ba4e338b-6a93-4f1c-ad1a-bd0de1566ba6","name":"system","alias":[""], "registerInstances": true},
+        {"uuid":"d04e35d9-fb0d-4bac-9041-61100ffef9b3","category":"system","parent":"8ff58122-9e73-4ec5-bd51-d621065156b0","name":"kernel","alias":[""], "registerInstances": true},
+        {"uuid":"f84f9d2d-4fd9-4ca1-89eb-8fd578f9fc5a","category":"system","parent":"8ff58122-9e73-4ec5-bd51-d621065156b0","name":"kernelId","alias":[""], "registerInstances": true},
+        {"uuid":"876ca419-5e96-4a93-8a0d-baaca631550c","category":"system","parent":"8ff58122-9e73-4ec5-bd51-d621065156b0","name":"operating_system","alias":[""], "registerInstances": true},
+        {"uuid":"444ef273-0880-420f-b89b-bf1691a4f336","category":"system","parent":"8ff58122-9e73-4ec5-bd51-d621065156b0","name":"bios","alias":[""], "registerInstances": true},
+        {"uuid":"1fa96727-6fff-4edb-9ff3-3ce435aa90d1","category":"system","parent":"8ff58122-9e73-4ec5-bd51-d621065156b0","name":"firmware","alias":[""], "registerInstances": true},
+
+        {"uuid":"9d6fc901-ad22-4d65-9797-ff7ee3bd6170","category":"system","parent":"8ff58122-9e73-4ec5-bd51-d621065156b0","name":"container","alias":[""], "registerInstances": true},
+        {"uuid":"afeb0392-bc04-48fb-a0dc-ea6aeb81df0c","category":"container","parent":"9d6fc901-ad22-4d65-9797-ff7ee3bd6170","name":"containerId","alias":[""], "registerInstances": true},
+        {"uuid":"28b53c22-fd35-4dec-b812-9993248c9e24","category":"container","parent":"9d6fc901-ad22-4d65-9797-ff7ee3bd6170","name":"containerTag","alias":[""], "registerInstances": true},
+        {"uuid":"ee509789-663a-4718-8019-3547711ad72e","category":"container","parent":"9d6fc901-ad22-4d65-9797-ff7ee3bd6170","name":"containerName","alias":[""], "registerInstances": true},
+        {"uuid":"63ca9b27-841f-437a-a51f-c7c20a01c88d","category":"container","parent":"9d6fc901-ad22-4d65-9797-ff7ee3bd6170","name":"containerImage","alias":[""], "registerInstances": true},
+
+    
+        {"uuid":"58ced28d-cc0c-4d29-9455-7a0222f8a4c2","category":"functional","parent":"ba4e338b-6a93-4f1c-ad1a-bd0de1566ba6","name":"application","alias":[""], "registerInstances": true},
+        {"uuid":"0accd48b-e0d6-4b0e-b344-13ffabc1a8b5","category":"application","parent":"58ced28d-cc0c-4d29-9455-7a0222f8a4c2","name":"package","alias":[""], "registerInstances": true},
+        {"uuid":"3279e1e6-eb7f-47f2-a70a-1b5223d13144","category":"application","parent":"58ced28d-cc0c-4d29-9455-7a0222f8a4c2","name":"binary","alias":[""], "registerInstances": true},
+        {"uuid":"3eb71028-8ee0-4272-8456-1df81c50c8f8","category":"application","parent":"58ced28d-cc0c-4d29-9455-7a0222f8a4c2","name":"code","alias":[""], "registerInstances": true},
+        {"uuid":"a1ee6445-d258-46e7-bbb1-8b8e536101ff","category":"application","parent":"58ced28d-cc0c-4d29-9455-7a0222f8a4c2","name":"repository","alias":[""], "registerInstances": true},
+        {"uuid":"b009f192-90be-4c6c-8a9c-cbe1300402af","category":"application","parent":"58ced28d-cc0c-4d29-9455-7a0222f8a4c2","name":"library","alias":[""], "registerInstances": true},
+        {"uuid":"2fcd9c36-74c9-4371-88f4-8223b0266e6a","category":"application","parent":"58ced28d-cc0c-4d29-9455-7a0222f8a4c2","name":"path","alias":[""], "registerInstances": true},
+        {"uuid":"0c1ef5d9-c19e-494a-b807-b62dd6774cf5","category":"application","parent":"58ced28d-cc0c-4d29-9455-7a0222f8a4c2","name":"version","alias":[""], "registerInstances": true},
+
+
+        {"uuid":"fe2ca885-565a-4a8f-9603-af370bf17f1b","category":"top","parent":"65d53950-d7cf-4bc7-837a-56c778bdc84d","name":"administrative","alias":[""], "registerInstances": false},
+        {"uuid":"582769c0-da5a-4456-be49-1988bb415eb0","category":"administrative","parent":"fe2ca885-565a-4a8f-9603-af370bf17f1b","name":"username","alias":[""], "registerInstances": false},
+        {"uuid":"733f3ac6-6c14-4cfd-bf5a-b5038477adf9","category":"administrative","parent":"fe2ca885-565a-4a8f-9603-af370bf17f1b","name":"groupname","alias":[""], "registerInstances": false},
+        {"uuid":"733f3ac6-6c14-4cfd-bf5a-b5038477adf9","category":"administrative","parent":"fe2ca885-565a-4a8f-9603-af370bf17f1b","name":"groupname","alias":[""], "registerInstances": false},
+
+        {"uuid":"209f84dd-abb0-4cf4-a8e4-8c77bb32711a","category":"top","parent":"65d53950-d7cf-4bc7-837a-56c778bdc84d","name":"operations","alias":[""], "registerInstances": false},
+        {"uuid":"3064dc18-e123-42bd-b89d-50fd6b430fdf","category":"operations","parent":"209f84dd-abb0-4cf4-a8e4-8c77bb32711a","name":"monitoring","alias":[""], "registerInstances": false},
+        {"uuid":"1d941a2a-51e9-4d57-b43d-c32c4ed244b9","category":"monitoring","parent":"3064dc18-e123-42bd-b89d-50fd6b430fdf","name":"metrics","alias":[""], "registerInstances": false},
+        {"uuid":"8523d481-8eb1-494f-9885-6116c1a8a09f","category":"monitoring","parent":"3064dc18-e123-42bd-b89d-50fd6b430fdf","name":"security","alias":[""], "registerInstances": false},
+        {"uuid":"3c325ad3-9722-4a3d-a9f8-d6ae918e3bf9","category":"monitoring","parent":"3064dc18-e123-42bd-b89d-50fd6b430fdf","name":"assessment","alias":[""], "registerInstances": false},
+        {"uuid":"48434138-5e97-43f9-ac08-c62cad24a647","category":"operations","parent":"209f84dd-abb0-4cf4-a8e4-8c77bb32711a","name":"deployment","alias":[""], "registerInstances": false},
+        {"uuid":"5545f4bc-e95e-45ea-aea6-ab2fda410dc1","category":"deployment","parent":"48434138-5e97-43f9-ac08-c62cad24a647","name":"CI/CD","alias":[""], "registerInstances": false}
+    ],
+
+    "nessusPluginMap":{
+        "90191": [
+            {"name":"accountId", "type": "72dfb298-c806-4b93-b379-ef279b44ac57"},
+            {"name":"architecture", "type": "a724846b-298d-4377-a0b3-54e25740185f"},
+            {"name":"availabilityZone", "type": "72dfb298-c806-4b93-b379-ef279b44ac57"},
+            {"name":"imageId", "type": "419b54e1-c2ec-404c-b0cb-960a95e53e37"},
+            {"name":"instanceId", "type": "145b6a55-0d76-4d63-bc41-2b45c0b096c7"},
+            {"name":"instance-Id", "type": "145b6a55-0d76-4d63-bc41-2b45c0b096c7"},
+            {"name":"instanceType", "type": "51ac5365-2378-4902-80db-c3866c03477f"},
+            {"name":"privateIp", "type": "0b9a37b1-7677-4d3d-9b53-4df81c726fc9"},
+            {"name":"local-ipv4", "type": "0b9a37b1-7677-4d3d-9b53-4df81c726fc9"},
+            {"name":"ramdiskId", "type": "349fcc7d-3b31-448e-9ec0-ef22420eebf2"},
+            {"name":"region", "type": "861d9d05-0bb6-4872-8b2e-6d29ac4a68ec"},
+            {"name":"local-hostname", "type": "489918d1-58cb-421b-8ac9-bc6bfb6272b7"},
+            {"name":"hostname", "type": "489918d1-58cb-421b-8ac9-bc6bfb6272b7"},
+            {"name":"ami-id", "type": "53b819fb-1351-4c28-9191-48097c9f67a4"},
+            {"name":"vpc-id", "type": "3250af87-fab5-404f-b971-0fb2a3bb4173"},
+            {"name":"kernelId", "type": "f84f9d2d-4fd9-4ca1-89eb-8fd578f9fc5a"}
+        ],
+        "93561": [
+            {"name":"Name", "type": "ee509789-663a-4718-8019-3547711ad72e"},
+            {"name":"Tag", "type": "28b53c22-fd35-4dec-b812-9993248c9e24"},
+            {"name":"ID", "type": "afeb0392-bc04-48fb-a0dc-ea6aeb81df0c"},
+            {"name":"Image", "type": "63ca9b27-841f-437a-a51f-c7c20a01c88d"}
+            
+        ],
+        "11936": [
+            {"name":"Remote operating system", "type": "876ca419-5e96-4a93-8a0d-baaca631550c"}
+        ],
+        "25203":[
+            {"name":"address", "type": "0b9a37b1-7677-4d3d-9b53-4df81c726fc9"},
+            {"name":"interface", "type": "cc1b4642-33e6-4708-89dc-d9b1bd55ce35"}
+        ],
+        "33276":[
+            {"name":"address", "type": "68729dcf-cef6-4bd5-865b-4adb4ae6c7c8"},
+            {"name":"interface", "type": "cc1b4642-33e6-4708-89dc-d9b1bd55ce35"}
+        ],
+        "34098":[
+            {"name":"UUID", "type": "444ef273-0880-420f-b89b-bf1691a4f336"}
+        ],
+        "35351":[
+            {"name":"Serial Number", "type": "444ef273-0880-420f-b89b-bf1691a4f336"}
+
+        ],
+        "45590": [
+            "cpe:/a:cisco:clam_antivirus:0.103.2",
+            "cpe:/a:kubernetes:kubernetes:1.15.12",
+            "cpe:/a:tenable:nessus_agent:8.2.4"
+        ],
+        "55472": [
+            {"name":"Hostname", "type": "489918d1-58cb-421b-8ac9-bc6bfb6272b7"}
+        ],
+        "64815":[
+            {"name":"Path", "type": "2fcd9c36-74c9-4371-88f4-8223b0266e6a"},
+            {"name":"Version", "type": "0c1ef5d9-c19e-494a-b807-b62dd6774cf5"},
+            {"name":"Binary Location", "type": "3279e1e6-eb7f-47f2-a70a-1b5223d13144"}
+        ]
+
+    },
+    "configuration":{
+        "definition": "A common collection of assets and attributes logically aggregated to represent a single system.",
+        "constraint": "Assets and attributes of the configuration are connected together through a shared unique asset/attribute. The configuration should identify which asset/attribute is cardinal for binding the assets/attributes together in a configuration.",
+        "examples": [ {"description":"An operating system, an application, and a network interface all utilize the same unique CPU as identified by serial number or UUID.", "remark":"This would represent a typical 'system' as historically defined"}, {"description":"A container operating system, code libraries, and proprietary compiled binaries", "remarks":"none required"}, {"description":"32 physical network interfaces, 8 shared processors, flash-rom firmware, bios.", "remarks":"Large network router"},{"description": "An API endpoint, 2 container configurations, 16 container clusters", "remarks":"Regional Configuration of a Global Web Content Service"}]
+    },
+    "instance":{
+        "definition": "A single unique instance of an asset configuration. The configuration instance is identified by a single unique identifier representing the instance.",
+        "constraint": "The unique identifier of an instance cannot be shared. If any attribute or asset in the configuration is changed, the instance unique identifier should iterate. It is recommended that for non-ephemeral instances that are updated/patched, to use a label or persistent identifier in addition to maintain a journal of timestamped changes to the instance",
+        "examples": [""]
+    },
+    "asset":{
+        "definition": "Any component, feature, aspect, device, platform, contract, setting, product, function, process, person, service, data, or document associated with or composing a given system (whether physical, logical or virtual) having value, impact, or signifigance as asserted by the system owner, stakeholders, or customers.",
+        "constraint": "The need to track, inventory, monitor, and report on assets is based on the requirements of the system. Not every system is the same, has the same assets, or the same operational requirement to track and maintain even common asset types. For compliance / risk management frameworks, governance should establish minimum attributes / data points required to be included as tracked / inventoried assets",
+        "examples": [""]
+    },
+    "poam_columns":[
+        {"column":"A","heading":"UNIQUE ASSET IDENTIFIER","mappedUUID":"uuid","mappedParent":""},
+        {"column":"B","heading":"IPv4 or IPv6Address","mappedUUID": "0b9a37b1-7677-4d3d-9b53-4df81c726fc9","mappedParent":""},
+        {"column":"C","heading":"Virtual","mappedUUID": "Boolean","mappedParent":""},
+        {"column":"D","heading":"Public","mappedUUID":"Boolean","mappedParent":""},
+        {"column":"E","heading":"DNS Name or URL","mappedUUID":["ee49453d-1d9a-4ae2-afc2-20252dee7764", "bf292c22-987c-49b0-8ca8-458ce76d86a7"]},
+        {"column":"F","heading":"NetBIOS Name","mappedUUID":"489918d1-58cb-421b-8ac9-bc6bfb6272b7","mappedParent":""},
+        {"column":"G","heading":"MAC Address","mappedUUID":"68729dcf-cef6-4bd5-865b-4adb4ae6c7c8","mappedParent":""},
+        {"column":"H","heading":"Authenticated Scan","mappedUUID":"Boolean","mappedParent":""},
+        {"column":"I","heading":"Baseline Configuration Name","mappedUUID":"Owner Defined","mappedParent":""},
+        {"column":"J","heading":"OS Name and Version","mappedUUID": ["876ca419-5e96-4a93-8a0d-baaca631550c", "d04e35d9-fb0d-4bac-9041-61100ffef9b3"]},
+        {"column":"K","heading":"Location","mappedUUID":null,"mappedParent":"25e11785-7825-4620-b450-aa237144593a"},
+        {"column":"L","heading":"Asset Type","mappedUUID":"uuid","mappedParent":""},
+        {"column":"M","heading":"Hardware Make/Model","mappedUUID":null,"mappedParent":""},
+        {"column":"N","heading":"In Latest Scan","mappedUUID":"Boolean","mappedParent":""},
+        {"column":"O","heading":"Software/ Database Vendor","mappedUUID":"uuid","mappedParent":""},
+        {"column":"P","heading":"Software/ Database Name & Version","mappedUUID":"uuid","mappedParent":""},
+        {"column":"Q","heading":"Patch Level","mappedUUID":"uuid","mappedParent":""},
+        {"column":"R","heading":"Function","mappedUUID":"uuid","mappedParent":""},
+        {"column":"S","heading":"Comments","mappedUUID":"uuid","mappedParent":""},
+        {"column":"T","heading":"Serial #/Asset Tag#","mappedUUID":"uuid","mappedParent":""},
+        {"column":"U","heading":"VLAN/Network ID","mappedUUID":"uuid","mappedParent":""},
+        {"column":"V","heading":"System Administrator/ Owner","mappedUUID":"uuid","mappedParent":""},
+        {"column":"W","heading":"Application Administrator/ Owner","mappedUUID":"uuid"}
+    ]
+}

@@ -146,7 +146,7 @@
     "dir": "/.sarcat/",
     "type": 1,
     "template": "",
-    "data":{"assets":[{"uuid":"","name":"", "created_ts":"","modified_ts":"","meta":[{"firstSeen":"","lastSeen":"", "type":"","configuration": {}}]}]}
+    "data":{"assets":[{"uuid":"","name":"", "created_ts":"","modified_ts":"","assets":[{"uuid":"","firstSeen":"","lastSeen":"", "category":"","name":"","value": ""}]}]}
   },
   {
     "label": "assessmentRegistry",

@@ -3,8 +3,10 @@ import parser from 'fast-xml-parser'
 import { Easy } from 'easy-lowdb'
 import {createReadStream, createWriteStream} from 'node:fs'
 import { _SC_templates } from '../../../../../templates/index_templates.mjs'
-var detailPlugins = [110483, 22869, 95928]
-var detailCapture = {110483: [], 22869: [], 95928: []}
+var nessusConfigFamilies = ["Service detection", "General", "Settings"]
+var detailPlugins = [] //[110483, 22869, 95928, 35351, 34098, 25203, 33276, 133964, 55472, 14272, 19506, 117887, 112063, 93561, 25221] //19506 scan config //117887 local checks enabled//112063 kubernetes 93561 docker
+var detailCapture = {}//{110483: [], 22869: [], 95928: [], 35351: [],34098:[], 25203:[],33276:[], 133964:[], 55472:[], 14272: [], 19506:[], 117887:[], 112063:[], 93561:[], 25221:[]}
+var detailHostCapture = {}
 var shaList = new Set()
 var systemImageIds = {}
 export async function summaryObjects(runObj, _parseSummary, resObj, outputDirectory){
@@ -24,6 +26,16 @@ export async function summaryObjects(runObj, _parseSummary, resObj, outputDirect
             var vulnReference = {}
             var hostContainers = {}
             var allContainers = new Set()
+            var pluginByFamily = []
+            var pluginByFamilyDict = {}
+            await scanParse_db.Report.map(x=> x.ReportHost)[0].map(y=>y.ReportItem.forEach(z=> {
+                pluginByFamilyDict[z.pluginID] = {family:z.pluginFamily, id: z.pluginID, name: z.pluginName}
+            }))
+            for(var pgId in pluginByFamilyDict){
+                pluginByFamily.push(pluginByFamilyDict[pgId])
+            }
+            detailPlugins = pluginByFamily.filter(x=>nessusConfigFamilies.indexOf(x.family)>-1).map(y=>y.id)
+            detailPlugins.forEach(x=>detailCapture[x] = [])
             await scanParse_db.Report.map(x=> x.ReportHost)[0].map(y=>y.ReportItem.forEach(z=> {
                 z.svc_name = z.svc_name.split('?')[0]
                 var uniqStr = `${z.severity}_${z.svc_name}_${z.pluginID}_${z.pluginName}`
@@ -43,7 +55,8 @@ export async function summaryObjects(runObj, _parseSummary, resObj, outputDirect
     
                 // ||={shaList: [],systemImageIds: [], imageIdList: []}
                 reportItems.push(uniqStr)
-                if(detailPlugins.includes(z.pluginID)){
+                if(detailPlugins.includes(z.pluginID) && z.plugin_output){
+
                     var tmpDetail = z.plugin_output.split('\n').map(y=> y.trim())
                     if(z.pluginID == 22869){
                         tmpDetail = tmpDetail.slice(2)
@@ -97,7 +110,65 @@ export async function summaryObjects(runObj, _parseSummary, resObj, outputDirect
                         tmpDetail = tmpDetail.map(a=>a.split(' ').at(-2)+" "+a.split(' ').at(-1))
     
                     }
-                    detailCapture[z.pluginID].push({host: y.name, output: tmpDetail})
+                    var colonCounter = 0
+                    var interfaceCounter = 0
+                    var doubleDashCounter = 0
+                    var tmpArr = []
+                    var tmpDict = {}
+                    for(var ent of tmpDetail){
+                        if(ent.indexOf(":") > -1){
+                            colonCounter++
+                        }
+                        if(ent.indexOf('interface')>-1){
+                            interfaceCounter++
+                        }
+                        if(ent.indexOf('[')>-1 || ent.indexOf(']')>-1){
+                            doubleDashCounter++
+                        }
+                    }
+                    if(colonCounter > 0){
+                        tmpDetail = tmpDetail.filter(x=>x.length > 0)
+
+                        if(interfaceCounter > 0 && (tmpDetail[0].indexOf(":") == tmpDetail[0].length -1 && tmpDetail[1].indexOf('- ') == 0)){
+                            for(var ent of tmpDetail){
+                                if(ent.indexOf('interface')>0){
+                                    var tmpSplit = ent.split('interface')
+                                    tmpSplit[0] = tmpSplit[0].split('- ')[1].split(' ')[0]
+                                    tmpSplit[1] =  tmpSplit[1].split(' ')[1].slice(0,-1)
+                                    tmpArr.push({address: tmpSplit[0], interface: tmpSplit[1]})
+                                }
+                            }
+
+                        } else if (z.pluginID != 110483) {
+                            for(var ent of tmpDetail){
+                                var tmpSplit = ent.split(":")
+                                if(tmpSplit.length == 2){
+                                    tmpSplit[0] = tmpSplit[0].trim()
+                                    if(tmpSplit[0].indexOf('- ')==0){
+                                        tmpSplit[0] = tmpSplit[0].split('- ')[1]
+                                    }
+                                    if(!tmpDict[tmpSplit[0]] && (isNaN(Number(tmpSplit[0])) && tmpSplit[1])){
+                                        tmpDict[tmpSplit[0]]=tmpSplit[1].trim()
+                                    } else if((isNaN(Number(tmpSplit[0])) && tmpSplit[1])) {
+                                        tmpArr.push(tmpDict)
+                                        tmpDict = {}
+                                        tmpDict[tmpSplit[0]]=tmpSplit[1].trim()
+                                    }
+                                } 
+                            }
+                        }
+
+                        if(Object.keys(tmpDict).length > 0){
+                            tmpArr.push(tmpDict)
+                        }
+                    }
+                    if(tmpArr.length > 0){
+                        tmpDetail = tmpArr
+                    }
+
+                    detailCapture[z.pluginID].push({host: y.name, pluginName: z.pluginName, output: tmpDetail})
+                    detailHostCapture[y.name]||=[]
+                    detailHostCapture[y.name].push({host: y.name, pluginID: z.pluginID, pluginFamily: z.pluginFamily, pluginName: z.pluginName, output: tmpDetail})
                 }
             }))
     
@@ -237,7 +308,9 @@ export async function summaryObjects(runObj, _parseSummary, resObj, outputDirect
                 groupings: final, 
                 cmIssues: cmIssues, 
                 severityObj: sevDict, 
-                detailPluginCapture: detailCapture, 
+                detailPlugins: detailPlugins,
+                detailPluginCapture: detailCapture,
+                detailHostCapture: detailHostCapture,
                 hostVulnDict: hostVulnDict,
                 vulnHostDict: vulnHostDict,
                 vulnReference: vulnReference,

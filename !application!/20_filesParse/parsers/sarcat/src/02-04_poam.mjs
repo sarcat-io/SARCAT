@@ -5,7 +5,47 @@ import {_SC_utilities} from '../../../../utilities/index_utilities.mjs'
 import { writeFileSync } from "node:fs";
 //https://cve.mitre.org/data/downloads/allitems.csv.gz
 // unique bios and image IDs (e.g. AMI) for better grouping
+//
+//
 
+/**
+ * asset aggregate => 
+ *                  asset identifiers
+ *                  software
+ *                  containers
+ *              
+ *                  Asset registry
+ *                      types:
+ * 
+ *                          network addressing
+ *                              ip
+ *                              fqdn
+ *                              mac
+ *                              hostname
+ *                          network connections
+ *                              tcp
+ *                              udp
+ *                          services listening
+ *                              tcp 
+ *                              udp
+ *                          system configuration
+ *                              ami
+ *                              software package
+ *                              bios uuid
+ *                          
+ *                          system identifier
+ *                              vpc
+ *                              instance
+ *                          
+ *                          register aggregate
+ *                          sarcat id
+ * 
+ * 
+ *                          vpc
+ *                          instance
+ *                          
+ *                          
+ */
 async function getCVE(year){
     var cve_db = new Easy(`CVE-${year}`,normalize(`${process.cwd()}/../commonData/cve_data/`))
     return cve_db.read()
@@ -13,6 +53,7 @@ async function getCVE(year){
 var data; var fileName; var fileHash; var outputDirectory; var resObj
 
 export async function poam(runObj, poam_db, ro, outDir){
+    
     resObj = ro
     outputDirectory = outDir
     try {
@@ -41,32 +82,41 @@ export async function poam(runObj, poam_db, ro, outDir){
     
             }
         }
+        var hostSoftware = {}
         poam_db.data.assets = resObj.sarcat_db.data.host.map(x=>x.asset_id)
         poam_db.data.assessment_CVEs =  Object.keys(vulnDict)
         var softwarePackageInventory = {}
-        resObj.summary_db.data.detailPluginCapture['22869'].map(y=>y.output).forEach(b=> {
-            for(var pkg of b){
-                var tmp = pkg.split('|')
-                var name = tmp[0].split(/\-\d/)[0]
-                var ver = tmp[0].split(`${name}-`)[1]
-                softwarePackageInventory[name]||={versions:[]}
-                softwarePackageInventory[name].versions.push(ver)
-            }
-        })
+        resObj.summary_db.data.detailPluginCapture['22869'].map(y=>y.output).forEach(b=>{
+                for(var pkg of b){
+                    var tmp = pkg.split('|')
+                    var name = tmp[0].split(/\-\d/)[0]
+                    var ver = tmp[0].split(`${name}-`)[1]
+                    softwarePackageInventory[name]||={versions:[]}
+                    softwarePackageInventory[name].versions.push(ver)
+                }
+            })
+        
         for(var key in softwarePackageInventory){
             softwarePackageInventory[key].versions = [... new Set(softwarePackageInventory[key].versions)]
         }
         poam_db.data.softwarePackages = softwarePackageInventory
-    
-        // process inventory 
-        // user inventory
-        //hostname IP mappin// connection inventory?
-            // include service name and port
+        poam_db.data.hostSoftware||={}
+        resObj.summary_db.data.detailPluginCapture['22869'].forEach(x=>{
+            poam_db.data.hostSoftware[x.host]||=[]
+            for(var sp of x.output){
+                var tmp = sp.split('|')
+                var name = tmp[0].split(/\-\d/)[0]
+                var ver = tmp[0].split(`${name}-`)[1]
+                poam_db.data.hostSoftware[x.host].push({"name": name, "version": ver})
+            }
+        })
+
         await poam_db.write()
         var vrArr = []
         for(var vId in resObj.summary_db.data.vulnReference){
             vrArr.push(resObj.summary_db.data.vulnReference[vId])
         }
+
         poam_db.data.finding_detail = {}
         for(var entry of vrArr){
             if(entry.cve && typeof entry.cve == 'string'){
@@ -83,27 +133,65 @@ export async function poam(runObj, poam_db, ro, outDir){
         poam_db.data.findings = vrArr.filter(x=>x.severity > 0)
         delete poam_db.data.CVE_Official
     
+
+
         poam_db.data.uniqueHosts = resObj.summary_db.data.uniqueHosts
-        var softwarePackageInventory = {}
-        poam_db.data.softwarePackages = []
-        if(resObj.summary_db.data.detailPluginCapture['22869'].length > 0){
-            resObj.summary_db.data.detailPluginCapture['22869'].map(y=>y.output).forEach(b=> {
-                for(var pkg of b){
-                    var tmp = pkg.split('|')
-                    var name = tmp[0].split(/\-\d/)[0]
-                    var ver = tmp[0].split(`${name}-`)[1]
-                    softwarePackageInventory[name]||={versions:[]}
-                    softwarePackageInventory[name].versions.push(ver)
-                }
-            })
-            for(var key in softwarePackageInventory){
-                poam_db.data.softwarePackages.push({name: key, versions: [... new Set(softwarePackageInventory[key].versions)]})
-            }
-            // poam_db.data.softwarePackages = softwarePackageInventory
+
+
+        // var softwarePackageInventory = {}
+        // poam_db.data.softwarePackages = []
+        // if(resObj.summary_db.data.detailPluginCapture['22869'].length > 0){
+        //     resObj.summary_db.data.detailPluginCapture['22869'].map(y=>y.output).forEach(b=> {
+        //         for(var pkg of b){
+        //             var tmp = pkg.split('|')
+        //             var name = tmp[0].split(/\-\d/)[0]
+        //             var ver = tmp[0].split(`${name}-`)[1]
+        //             softwarePackageInventory[name]||={versions:[]}
+        //             softwarePackageInventory[name].versions.push(ver)
+        //         }
+        //     })
+        //     for(var key in softwarePackageInventory){
+        //         poam_db.data.softwarePackages.push({name: key, versions: [... new Set(softwarePackageInventory[key].versions)]})
+        //     }
+        //     // poam_db.data.softwarePackages = softwarePackageInventory
+        // }
+
+        poam_db.data.allContainers = resObj.summary_db.data.allContainers
+        poam_db.data.hostContainers||={}
+        var hostKeys = Object.keys(resObj.summary_db.data.hostContainers)
+        hostKeys.forEach(c=>{
+            poam_db.data.hostContainers[c] = resObj.summary_db.data.hostContainers[c].length > 0? resObj.summary_db.data.hostContainers[c] : []
+        })
+        poam_db.data.pluginsByFamily = {}
+        vrArr.forEach(va => {
+            poam_db.data.pluginsByFamily[va.pluginFamily]||=new Set()
+            poam_db.data.pluginsByFamily[va.pluginFamily].add(va.pluginID)
+        })
+        for (var fm in  poam_db.data.pluginsByFamily){
+            poam_db.data.pluginsByFamily[fm] = [...poam_db.data.pluginsByFamily[fm]]
         }
-        poam_db.data.containers = resObj.summary_db.data.allContainers
+
+        
+        poam_db.data.byCVE = {summary: {totalCVEs: Object.keys(vulnDict).length, totalHostCount: resObj.sarcat_db.data.host.length}}
         await poam_db.write()
-        poam_db.data.byCVE = {summary: {totalCVEs: Object.keys(vulnDict).length, totalHostCount: resObj.sarcat_db.data.hostCount}}
+
+        poam_db.data.netstat||={}
+        resObj.sarcat_db.data.host.forEach(z=>{
+            poam_db.data.netstat[z.name]||=[]
+            z.netstat.forEach(a=>{
+                var tmpVar = a.name.split('-')
+                var tmpObj = {"connection_state": tmpVar[1],"protocol": tmpVar[2].split('4')[0]}
+                var estObj = a.value.split('-')
+                tmpObj.local_ip =  estObj[0].split(':')[0]
+                tmpObj.local_port =  estObj[0].split(':')[1]
+                if(tmpVar[1] == 'established'){
+                    tmpObj.remote_ip =  estObj[1].split(':')[0]
+                    tmpObj.remote_port =  estObj[1].split(':')[1]
+                } 
+                poam_db.data.netstat[z.name].push(tmpObj)
+            })
+        })
+        await poam_db.write()
         //breakout by CVE severity and unique affected host count at that severity level e.g. 30 hosts have highs, 
         // for(var entries in resObj.summary_db.vulnReference){
     
@@ -116,7 +204,7 @@ export async function poam(runObj, poam_db, ro, outDir){
         // await poam_db.write()
         var res =''
         res +=`Successfully created ${fileHash}_poam.json (Processed Data -> POAM Output Objects\n`
-        resObj.poamRes = res + `SARCAT_OUT|${fileHash}_poam.json|${outputDirectory}|poam\n`
+        res += `SARCAT_OUT|${fileHash}_poam.json|${outputDirectory}|poam\n`
         resObj.poamRes = res + `DELIVERABLE_OUT|${outputDirectory}${fileHash}_poam.json\n`
     
         resObj.poam_db = poam_db

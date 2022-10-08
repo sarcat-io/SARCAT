@@ -214,6 +214,7 @@ async function parseFiles(runObj,workingBundle, outDirs){
                         res.push(`${sevSep}${numberSeverity[wordSev2Num[liSev]](liCount)}`)
                     }
                     console.log(res.join('\n'))
+
                     for(var l of lines){
                         l = l.split('|')
                         var mnf = new Easy(l[1],l[2])

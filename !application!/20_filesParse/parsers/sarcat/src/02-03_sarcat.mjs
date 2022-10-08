@@ -1,6 +1,27 @@
 
 //Need to capture scan config detail
+// General
+// Misc. severirty = 0
+// Policy Compliance
+// Port scanners
+// RPC
+// Service Detection
+// Settings
 
+/**
+ * Software Enumeration <- package list
+ * gets system enumeration plugins. should set these dynamically and capture output for asset inventory
+ * for(var host of nessus.data.Report[0].ReportHost){
+    sd_pg_arr.push(... new Set(host.ReportItem.filter(x=> x.pluginFamily == "Service detection").map(y=>y.pluginID)))
+}
+[ 25221 remote listenerss
+112063 kubernetes
+, 93561 docker
+, 121575 ansible
+, 119602 python ]
+
+console.log([... new Set(sd_pg_arr)])
+ */
 
 export const regularExpressions= [
     {"type":"ip","exp": RegExp(/(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/gi)},
@@ -134,6 +155,7 @@ async function hostProp(hp){
 
                 }
             }
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         }
     }
     return hostDict
@@ -263,7 +285,7 @@ async function processReport(report, sarcat_db){
         var hostObject = {name: repHost.name}
         hostObject.properties = await hostProp(repHost.HostProperties)
         hostObject.asset_id = Object.assign({},hostObject.properties.asset_id)
-        hostObject.netstat = Object.assign({},hostObject.properties.netStat)
+        hostObject.netstat = Object.assign([],hostObject.properties.netStat)
         delete hostObject.properties.asset_id
         delete hostObject.properties.netStat
         hostObject.report = await processHostReport(repHost.ReportItem)

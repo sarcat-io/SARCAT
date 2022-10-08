@@ -21,7 +21,6 @@ const localWorkingDirectory = process.argv[3]
 // console.log(dockerImageHash, dockerImageZip)
 ///////////////////////////////////////////////////////////////
 async function _main_(){
-    console.log(logo)
         const _sc = new _SC(archiveDirectory)
         await _sc.populateArchive()
         await _sc.bootstrap()

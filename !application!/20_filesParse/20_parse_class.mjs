@@ -21,3 +21,5 @@ export class _SC_20_filesParse {
         // validate fields in
     }
 }
+
+///internet access test should be mandatory (configured DNS servers, outbound calls, routes etc..)
